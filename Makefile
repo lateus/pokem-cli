@@ -1,7 +1,7 @@
 # Compiler
 CC			:=	gcc
 # Compiler flags
-DEFINES		:=	$(if $(filter build-cli-without-colors, $(MAKECMDGOALS)), -DNO_USE_COLORS,)
+DEFINES		:=	$(if $(filter build-without-colors, $(MAKECMDGOALS)), -DNO_USE_COLORS,)
 CC_WFLAGS	:=	-W -Wall -Wextra -pedantic
 CC_OFLAGS	:=	-O2 -funroll-loops
 CC_LFLAGS	:=	-Wl,-s -static
@@ -12,6 +12,8 @@ RM			:=	rm
 RM_FLAGS	:=	-rf
 MKDIR		:=	mkdir
 MKDIR_FLAGS	:=	-p
+CP			:=	cp
+CP_FLAGS	:=	-f
 WINDRES		:=	$(shell which windres)
 
 # Directories
@@ -64,11 +66,11 @@ WHITE		:=	$(if $(filter -DNO_USE_COLORS, $(DEFINES)),,\033[1;37m)
 
 # ----------------------------------------------------------------------------------------------------
 
-.DEFAULT_GOAL := build-cli
-.PHONY: build-cli build-cli-without-colors clean help
+.DEFAULT_GOAL := build
+.PHONY: build build-without-colors clean help
 
-build-cli: $(EXECUTABLE) ## Build Pokem CLI executable (default)
-build-cli-without-colors: $(EXECUTABLE) ## Build Pokem CLI executable, without colors
+build: $(EXECUTABLE) ## Build Pokem CLI executable (default)
+build-without-colors: $(EXECUTABLE) ## Build Pokem CLI executable, without colors
 
 clean: ## Remove all leftovers from the previous build
 	@$(MSG) "$(ORANGE)Removing intermediate objects files...$(NOCOLOR)\n"
@@ -83,11 +85,17 @@ clean: ## Remove all leftovers from the previous build
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "$(WHITE)%-10s$(NOCOLOR) %s\n", $$1, $$2}'
 
-$(EXECUTABLE): $(BUILDDIR) $(OBJS) $(RC_OBJ) $(BINDIR)
+$(EXECUTABLE): $(LIBS) $(BUILDDIR) $(OBJS) $(RC_OBJ) $(BINDIR)
 	@$(MSG) "Object files: $(OBJS)\n"
 	@$(MSG) "$(YELLOW)Building and linking executable file...$(NOCOLOR)\n"
 	$(CC) -o $@ $(CFLAGS) $(CC_LFLAGS) $(OBJS) $(RC_OBJ) -L$(LIBDIR) -l$(LIBS)
 	@$(MSG) "$(LIGHTGREEN)Done. The example $(WHITE)pokem-cli$(LIGHTGREEN) was built in the $(LIGHTBLUE)$(BINDIR)$(LIGHTGREEN) directory. Enjoy.$(NOCOLOR)\n"
+
+$(LIBS):
+	@$(MSG) "$(YELLOW)Building $(LIGHTGREEN)$@$(YELLOW) library...$(NOCOLOR)\n"
+	@$(MAKE) --directory src/3rdparty/$@
+	@$(CP) $(CP_FLAGS) src/3rdparty/$@/binlib/lib$@.a lib/lib$@.a
+	@$(CP) $(CP_FLAGS) src/3rdparty/$@/binlib/lib$@.h lib/$@.h
 
 $(OBJS):
 	@$(MSG) "$(GREEN)Compiling $(BLUE)$<$(GREEN)...$(NOCOLOR)\n"
