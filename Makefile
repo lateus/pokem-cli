@@ -1,7 +1,7 @@
 # Compiler
 CC			:=	gcc
 # Compiler flags
-DEFINES		:=	$(if $(filter build-without-colors, $(MAKECMDGOALS)), -DNO_USE_COLORS,)
+DEFINES		:=	$(if $(filter all-without-colors, $(MAKECMDGOALS)), -DNO_USE_COLORS,)
 CC_WFLAGS	:=	-W -Wall -Wextra -pedantic
 CC_OFLAGS	:=	-O2 -funroll-loops
 CC_LFLAGS	:=	-Wl,-s -static
@@ -17,7 +17,7 @@ CP_FLAGS	:=	-f
 WINDRES		:=	$(shell which windres)
 
 # Directories
-LIBDIR		:=	lib
+LIBSDIR		:=	lib
 BUILDDIR	:=	build
 BINDIR		:=	bin
 
@@ -66,36 +66,37 @@ WHITE		:=	$(if $(filter -DNO_USE_COLORS, $(DEFINES)),,\033[1;37m)
 
 # ----------------------------------------------------------------------------------------------------
 
-.DEFAULT_GOAL := build
-.PHONY: build build-without-colors clean help
+.DEFAULT_GOAL := all
+.PHONY: all all-without-colors clean help
 
-build: $(EXECUTABLE) ## Build Pokem CLI executable (default)
-build-without-colors: $(EXECUTABLE) ## Build Pokem CLI executable, without colors
+all: $(EXECUTABLE) ## Build Pokem CLI executable (default)
+all-without-colors: $(EXECUTABLE) ## Build Pokem CLI executable, without colors
 
 clean: ## Remove all leftovers from the previous build
-	@$(MSG) "$(ORANGE)Removing intermediate objects files...$(NOCOLOR)\n"
+	@$(MSG) "$(YELLOW)Removing 3rd party build leftovers...$(NOCOLOR)\n"
+	@$(MAKE) --directory src/3rdparty/pokem clean
+	@$(MSG) "$(YELLOW)Removing intermediate objects files...$(NOCOLOR)\n"
 	$(RM) $(RM_FLAGS) $(RC_OBJ) $(OBJS)
-	@$(MSG) "$(ORANGE)Removing binaries...$(NOCOLOR)\n"
+	@$(MSG) "$(YELLOW)Removing binaries...$(NOCOLOR)\n"
 	$(RM) $(RM_FLAGS) $(EXECUTABLE)
-	@$(MSG) "$(ORANGE)Removing directories...$(NOCOLOR)\n"
+	@$(MSG) "$(YELLOW)Removing directories...$(NOCOLOR)\n"
 	$(RM) $(RM_FLAGS) $(BUILDDIR)
 	$(RM) $(RM_FLAGS) $(BINDIR)
-	@$(MSG) "$(LIGHTGREEN)Example $(WHITE)pokem-cli$(LIGHTGREEN) cleaned.$(NOCOLOR)\n\n"
+	@$(MSG) "$(WHITE)PokeM-CLI$(LIGHTGREEN) cleaned.$(NOCOLOR)\n"
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "$(WHITE)%-10s$(NOCOLOR) %s\n", $$1, $$2}'
 
 $(EXECUTABLE): $(LIBS) $(BUILDDIR) $(OBJS) $(RC_OBJ) $(BINDIR)
-	@$(MSG) "Object files: $(OBJS)\n"
 	@$(MSG) "$(YELLOW)Building and linking executable file...$(NOCOLOR)\n"
-	$(CC) -o $@ $(CFLAGS) $(CC_LFLAGS) $(OBJS) $(RC_OBJ) -L$(LIBDIR) -l$(LIBS)
-	@$(MSG) "$(LIGHTGREEN)Done. The example $(WHITE)pokem-cli$(LIGHTGREEN) was built in the $(LIGHTBLUE)$(BINDIR)$(LIGHTGREEN) directory. Enjoy.$(NOCOLOR)\n"
+	$(CC) -o $@ $(CFLAGS) $(CC_LFLAGS) $(OBJS) $(RC_OBJ) -L$(LIBSDIR) -l$(LIBS)
+	@$(MSG) "$(LIGHTGREEN)Done. $(WHITE)PokeM-CLI$(LIGHTGREEN) was built in the $(LIGHTBLUE)$(BINDIR)$(LIGHTGREEN) directory. Enjoy.$(NOCOLOR)\n"
 
-$(LIBS):
+$(LIBS): $(LIBSDIR)
 	@$(MSG) "$(YELLOW)Building $(LIGHTGREEN)$@$(YELLOW) library...$(NOCOLOR)\n"
 	@$(MAKE) --directory src/3rdparty/$@
 	@$(CP) $(CP_FLAGS) src/3rdparty/$@/binlib/lib$@.a lib/lib$@.a
-	@$(CP) $(CP_FLAGS) src/3rdparty/$@/binlib/lib$@.h lib/$@.h
+	@$(CP) $(CP_FLAGS) src/3rdparty/$@/binlib/$@.h lib/$@.h
 
 $(OBJS):
 	@$(MSG) "$(GREEN)Compiling $(BLUE)$<$(GREEN)...$(NOCOLOR)\n"
@@ -105,6 +106,10 @@ $(RC_OBJ):
 	@$(MSG) "$(YELLOW)Building MS Windows's RC file...$(NOCOLOR)\n"
 	$(WINDRES) -i $(RC_FILE) $(DEFINES) -o $@
 	@$(MSG) "$(YELLOW)Building intermediate objects files...$(NOCOLOR)\n"
+
+$(LIBSDIR):
+	@$(MSG) "$(YELLOW)Creating $@ directory...$(NOCOLOR)\n"
+	$(MKDIR) $(MKDIR_FLAGS) $(LIBSDIR)
 
 $(BUILDDIR):
 	@$(MSG) "$(YELLOW)Creating $@ directory...$(NOCOLOR)\n"
