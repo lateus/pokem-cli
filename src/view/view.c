@@ -13,11 +13,13 @@
     "This program comes with ABSOLUTELY NO WARRANTY.\n" \
     "This is free software, and you are welcome to modify and/or redistribute it under the\n" \
     "terms of the GNU GENERAL PUBLIC LICENSE v2. Please visit http://www.gnu.org/licenses/\n\n"
+#define GRATITUDE \
+    "Special thanks to Peter O., since this work couldn't be possible without his research.\n\n"
 
 
 void showHelp(const char *programName)
 {
-    fputs(DISCLAIMER, stdout);
+    fputs(DISCLAIMER GRATITUDE, stdout);
 
     fprintf(stdout, LIGHT "Usage: " LGREEN "%s [ARGUMENTS]...\n" \
                     LYELLOW "-h, --help              " RESET "display this help and exit\n" \
