@@ -15,7 +15,7 @@
     support on Windows. The best way to do this is calling system(char *command) passing an empty
     C-style string like this: system("");
 
-                                                                                    The author
+                                                        The author, lateo96 (thecrowporation@gmail.com)
                                                                                     
     PD: The info used here has been extracted from Wikipedia (EN) and others web sites.
 */
@@ -24,9 +24,6 @@
 
 C:
     fprintf(stdout, LRED "Differents " LYELLOW DRED_BG UNDERLINE "colors" RESET WHITE ".\n");
-
-C++:
-    std::cout << LRED "Differents " LYELLOW DRED_BG UNDERLINE "colors" RESET WHITE "." << std::endl;
 
 ************************************************************************************************************* */
 
