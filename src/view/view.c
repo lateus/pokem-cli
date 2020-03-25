@@ -1036,7 +1036,7 @@ void printWonderMailDataToFile(const struct WonderMailInfo *mailInfo, FILE *f)
     char passwordHalf2[13] = {0};
 
     strncpy(passwordHalf1, mailInfo->password, 12);
-    strncpy(passwordHalf2, mailInfo->password, 12);
+    strncpy(passwordHalf2, mailInfo->password + 12, 12);
 
     fprintf(f, "************************************************\n"
                     "* %-44s *\n"
@@ -1068,8 +1068,8 @@ void printSOSDataToFile(const struct SosMailInfo *mailInfo, enum MailType mailTy
     char passwordThird3[19] = {0};
 
     strncpy(passwordThird1, mailInfo->password, 18);
-    strncpy(passwordThird2, mailInfo->password, 18);
-    strncpy(passwordThird3, mailInfo->password, 18);
+    strncpy(passwordThird2, mailInfo->password + 18, 18);
+    strncpy(passwordThird3, mailInfo->password + 36, 18);
 
     fprintf(f, "**************************************************\n"
                     "* %-46s *\n"
