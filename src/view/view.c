@@ -25,83 +25,80 @@ void showHelp(const char *programName)
     fprintf(stdout, LIGHT "Usage: " LGREEN "%s [ARGUMENTS]...\n" \
                     LYELLOW "-h, --help              " RESET "display this help and exit\n" \
                     LYELLOW "-v, --version           " RESET "display version information and exit\n" \
-                    LYELLOW "-d, --database <type>   " RESET "display the database of the selected type,\n" \
-                    "                        which can be one of [pokemon|items|dungeons|areas|missions|rewards|mails]\n\n" \
-                    LIGHT "Generic: ==================================================================\n" RESET \
+                    LYELLOW "-d, --database <type>   " RESET "display a database of the selected type,\n" \
+                            "                        which can be one of [pokemon|items|dungeons|areas|missions|rewards|mails]\n\n", programName);
+
+    fprintf(stdout, LIGHT "Generic: ==================================================================\n" RESET \
                     "This program will try to autodetect what do you want to do based\n" \
                     "on your input. If you enter a Wonder Mail or SOS Mail, this program\n" \
                     "will try to decode it. If you enter an SOS Mail and an item, this\n" \
                     "program will try to convert it in a A-OK Mail and then in a Thank-You\n" \
                     "Mail. If you enter exactly 9 or 6 arguments, this program will try\n" \
-                    "to encode a Wonder Mail or a SOS Mail respectively.\n" \
-                    "\n" \
-                    LIGHT "Conventions: ==============================================================\n" RESET \
-                    LIGHT "1. " RESET "Enter the password in UPPERCASE.\n" \
-                    LIGHT "2. " RESET "Enter the names of pokemon, items, dungeons, etc. " LIGHT "C" RESET "apitalized.\n" \
-                    LIGHT "3. " RESET "Symbols conventions:\n" \
+                    "to encode a Wonder Mail or a SOS Mail respectively.\n\n");
+
+    fprintf(stdout, LIGHT "Conventions: ==============================================================\n" RESET \
+                    LIGHT "1. " RESET "Symbols conventions:\n" \
                     "    \'Female\' -> \'" LGREEN "*" RESET "\'\n" \
                     "    \'Male\'   -> \'" LGREEN "/" RESET "\'\n" \
                     "    \'...\'    -> \'" LGREEN "." RESET "\'\n" \
-                    LIGHT "4. " RESET "It's recommended that you quote passwords arguments and arguments that\n" \
+                    LIGHT "2. " RESET "It's recommended that you quote passwords arguments and arguments that\n" \
                     "   contains spaces by using \"double quotes\" on Windows and \'single quotes\' on\n" \
-                    "   UNIX systems.\n" \
-                    "\n", programName);
+                    "   UNIX systems.\n\n");
+
     fprintf(stdout, LIGHT "Decode Wonder Mail: =======================================================\n" RESET \
                     LIGHT "Usage: " LGREEN "%s [password1] [password2]...\n" RESET \
                     "Decode all entered passwords. Invalid ones are skipped.\n" \
                     "Examples of valid entries:\n" \
                     LGREEN "%s \'4?6F7M+?4JNRJ*??K??0+9??\' \'16J.8!0?1PS35-?06N?RP8?W\' \'F?N.?QY?8RNYYN?4.J75N+?W\'\n" \
-                    LGREEN "%s \'??J9XJX?2P??8??F6H?0P??W\'\n" \
-                    "\n" \
-                    LIGHT "Encode Wonder Mail: =======================================================\n" RESET \
+                    LGREEN "%s \'??J9XJX?2P??8??F6H?0P??W\'\n\n", programName, programName, programName);
+
+    fprintf(stdout, LIGHT "Encode Wonder Mail: =======================================================\n" RESET \
                     LIGHT "Usage: " LGREEN "%s [Mission type] [Pkmn client] [Pkmn target] [Item to find/deliver] [Dungeon] [Floor] [Reward type] [Item reward] [Friend area reward]\n" RESET \
-                    "Encode a Wonder Mail using the entered arguments.\n" \
                     "You must enter exactly 9 arguments.\n" \
                     "You can use both numeric or text values for pokemon, items, dungeons and friend areas.\n" \
-                    "For the remaining fields, only numeric values are accepted.\n" \
-                    "Check the database to know the available mission types, pokemon, items, dungeons, etc.\n" \
-                    "Example of valid entries:\n" \
+                    "For the remaining fields, only numbers are accepted.\n" \
+                    "Check the database to know the available mission types, pokemon, items, dungeons, etc.\n", programName);
+
+    fprintf(stdout, "Example of valid entries:\n" \
                     LGREEN "%s 0 Milotic 1 0 \"Fantasy Strait\" 2 6 \"Wish Stone\" 0\n" RESET \
                     LIGHT "NOTE: " RESET "It's a Help-type mission from Milotic, the target pkmn and the item\n" \
                     "      to find/deliver are ignored. The rescue is in Fantasy Strait at 2nd floor.\n" \
-                    "      The reward is a lot of money and a Wish Stone, and the Friend Area reward is ignored.\n" \
-                    "--This is very useful, as wou can get any item, including hard to find ones like Beauty Scarf.\n" \
+                    "      The reward is a lot of money and a Wish Stone, and the Friend Area reward is ignored.\n", programName);
+    fprintf(stdout, "--This is very useful, as wou can get any item, including hard to find ones like Beauty Scarf.\n" \
                     "--You can also unlock game-exclusive pokemon like Porygon, Mantine, Plusle, Roselia and Feebas in\n"
                     "  Red Rescue Team (GBA), and Lapras, Minum, Aipom and Magikarp in Blue Rescue Team (DS).\n" \
-                    "--And, of course, you can also create high rescue points rewarding missions to improve your rank.\n" \
-                    "\n" \
-                    LIGHT "Decode SOS Mail: ==========================================================\n" RESET \
+                    "--And, of course, you can also create high rescue points rewarding missions to improve your rank.\n\n");
+
+    fprintf(stdout, LIGHT "Decode SOS Mail: ==========================================================\n" RESET \
                     LIGHT "Usage: " LGREEN "%s [password1] [password2]...\n" RESET \
                     "Decode all entered passwords. Invalid ones are skipped.\n" \
                     "Examples of valid entries:\n" \
                     LGREEN "%s \'?M???.R066???2FC?!?R????3HCP?-??32H???Y?M4C??1J??NQ04?\' \'S6???.RF?6F??NWH*5KC???RH1!9?8?JK7P0??SNMJRPSKJ??7QJ4N\'\n" RESET \
-                    LGREEN "%s \'????6+7SHX???1?4???H??4?NP???4???TR?????X25??PJ??07?C?\'\n" RESET \
-                    "\n" \
-                    LIGHT "Encode SOS Mail: ==========================================================\n" RESET \
+                    LGREEN "%s \'????6+7SHX???1?4???H??4?NP???4???TR?????X25??PJ??07?C?\'\n\n", programName, programName, programName);
+
+    fprintf(stdout, LIGHT "Encode SOS Mail: ==========================================================\n" RESET \
                     LIGHT "Usage: " LGREEN "%s [Mail type] [Pkmn client] [Pkmn nickname] [Dungeon] [Floor] [Rescue chances]\n" RESET \
-                    "Encode a SOS Mail using the entered arguments.\n" \
                     "You must enter exactly 6 arguments.\n" \
                     "You can use both numeric or text values for pokemon, items and dungeons.\n" \
                     "For the remaining fields, only numeric values are accepted.\n" \
-                    "Check the database to know the available pokemon, items, dungeons, etc.\n" \
-                    "Example of valid entries:\n" \
+                    "Check the database to know the available pokemon, items, dungeons, etc.\n", programName);
+    fprintf(stdout, "Example of valid entries:\n" \
                     LGREEN "%s 0 Chansey Nurcy \'Joyous Tower\' 50 30\n" RESET \
                     LIGHT "NOTE: " RESET "Rescue (SOS Mail) a Chansey named \"Nurcy\" at Joyous Tower floor 50.\n" \
                     "      You can try 30 times.\n" \
-                    "--It is very unlikely that you ever need to encode a SOS Mail, but, still, I want to support it.\n" \
-                    "\n"
-                    LIGHT "Convert SOS Mail in A-OK and Thank-You Mail: ==============================\n" RESET \
+                    "--It is very unlikely that you ever need to encode a SOS Mail, but, still, I want to support it.\n\n", programName);
+
+    fprintf(stdout, LIGHT "Convert SOS Mail in A-OK and Thank-You Mail: ==============================\n" RESET \
                     LIGHT "Usage: " LGREEN "%s [password1] [item1] [password2] [item2]...\n" RESET \
                     "Convert all entered SOS passwords in A-OK and Thank-You Mail passwords. Invalid ones are skipped.\n" \
                     "The input is not restricted to an SOS Mail. If you enter an A-OK Mail, it will be converted to Thank-You Mail,\n" \
-                    "and if you enter a Thank-You Mail, its reward item will be replaced with the received one.\n" \
-                    "The item specified is set as reward in the Thank-You Mail password.\n" \
-                    "If the item specified does not exists, the most similar in terms of writing is assumed.\n" \
+                    "and if you enter a Thank-You Mail, its reward item will be replaced with the received one.\n", programName);
+    fprintf(stdout, "The item specified is set as reward in the Thank-You Mail password.\n" \
+                    "If the item specified does not exists, the most similar is assumed.\n" \
                     "Check the database to know the available items.\n" \
                     "Examples of valid entries:\n" \
-                    LGREEN "%s \'?M???.R066???2FC?!?R????3HCP?-??32H???Y?M4C??1J??NQ04?\' \"Joy Seed\" \'S6???.RF?6F??NWH*5KC???RH1!9?8?JK7P0??SNMJRPSKJ??7QJ4N\' Ginseng\n" RESET \
-                    LGREEN "%s \'????6+7SHX???1?4???H??4?NP???4???TR?????X25??PJ??07?C?\' Nothing\n" RESET \
-                    "--This is very useful, as wou can rescue yourself by converting your own SOS Mail.\n", programName, programName, programName, programName, programName, programName, programName, programName, programName, programName, programName, programName, programName);
+                    LGREEN "%s \'?M???.R066???2FC?!?R????3HCP?-??32H???Y?M4C??1J??NQ04?\' \"Joy Seed\" \'S6???.RF?6F??NWH*5KC???RH1!9?8?JK7P0??SNMJRPSKJ??7QJ4N\' Nothing\n" RESET \
+                    "--This is very useful, as wou can rescue yourself by converting your own SOS Mail.\n", programName);
     fflush(stdout);
 }
 
@@ -169,6 +166,7 @@ void showDatabase(enum DatabaseType type)
 
 int showSelectionScreen()
 {
+    unsigned int selection;
     fputs(LIGHT "What do you want to do?\n" \
           DGRAY   "----------------------- Main Services ------------------------\n" \
           LGREEN  "1" RESET "  - Decode a Wonder Mail\n" \
@@ -178,15 +176,14 @@ int showSelectionScreen()
           LGREEN  "5" RESET "  - Convert a SOS Mail -> A-OK Mail -> Thank-You Mail\n" \
           DGRAY   "--------------------- Massive Generation ---------------------\n" \
           LGREEN  "6" RESET "  - Generate 8 easy \"Help Me!\" missions\n" \
-          LGREEN  "7" RESET "  - Generate a maximum of 8 high-rank \"Help Me!\" missions\n" \
-          DGRAY   "--------------------------- Unlock ---------------------------\n" \
+          LGREEN  "7" RESET "  - Generate a maximum of 8 high-rank \"Help Me!\" missions\n", stdout);
+    fputs(DGRAY   "--------------------------- Unlock ---------------------------\n" \
           LGREEN  "8" RESET "  - Unlock pokemon\n" \
           LGREEN  "9" RESET "  - Unlock dungeons\n" \
           DGRAY   "---------------------------- Help ----------------------------\n" \
           LGREEN  "10" RESET " - Show Database\n" \
           LGREEN  "11" RESET " - Show Help\n" \
           LGREEN  "[Other]:" LRED " Exit\n" RESET, stdout);
-    unsigned int selection;
     if (requestAndValidateIntegerInput(&selection, 0, 0, "") != NoError) {
         return 0; /* exit */
     } else {
@@ -198,7 +195,7 @@ int showSelectionScreen()
 
 int requestWonderMailPassword(char *password)
 {
-    return requestAndValidateStringInput(password, 24, 0, NULL, LIGHT "Enter the Wonder Mail's password (case sensitive)\n" RESET);
+    return requestAndValidateStringInput(password, 24, 0, NULL, LIGHT "Enter the Wonder Mail's password\n" RESET);
 }
 
 
@@ -212,6 +209,10 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
     char *stringEnd;
     int randomHolder;
     int mostSimilarIndex = 0;
+
+    const enum RewardType rewardTypes[] = { MoneyMoney, Item2, MoneyMoneyItem, ItemItem2, FriendArea };
+    const char* rewardTypesStr[] = { "Money", "Item", "Money + (?)", "Item + (?)", "Friend Area" };
+    const int availableFriendAreasIndexes[] = { 9, 10, 15, 37 };
 
     /* mission type */
     forever {
@@ -445,8 +446,6 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
     }
 
     /* reward type */
-    const enum RewardType rewardTypes[] = { MoneyMoney, Item2, MoneyMoneyItem, ItemItem2, FriendArea };
-    const char* rewardTypesStr[] = { "Money", "Item", "Money + (?)", "Item + (?)", "Friend Area" };
     forever {
         fputs(LIGHT "Select the " LGREEN "reward type" RESET LIGHT " (leave it blank for \"Money + (?)\").\n" RESET, stdout);
         for (i = 0; i < 5; ++i) {
@@ -513,7 +512,6 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
     }
 
     /* friend area reward */
-    const int availableFriendAreasIndexes[] = { 9, 10, 15, 37 };
     if (wm->rewardType == FriendArea) {
         forever {
             fputs(LIGHT "Select the " LGREEN "friend area" RESET LIGHT " reward (leave it blank for random).\n" RESET, stdout);
@@ -561,6 +559,11 @@ int requestAndParseSosMailData(struct SosMail *sos)
     /* mail type */
     const enum MailType mailTypes[] = { SosMailType, AOkMailType, ThankYouMailType };
     const char* mailTypesStr[] = { "SOS Mail", "A-Ok Mail", "Thank-You Mail" };
+
+    /* chances left */
+    unsigned int minChancesLeft;
+    unsigned int maxChancesLeft;
+
     forever {
         fputs(LIGHT "Select the " LGREEN "type of mail" RESET LIGHT " (leave it blank for SOS Mail).\n" RESET, stdout);
         for (i = 0; i < 3; ++i) {
@@ -729,8 +732,8 @@ int requestAndParseSosMailData(struct SosMail *sos)
     sos->mailID = rand() % 10000;
 
     /* Chances left */
-    unsigned int minChancesLeft = sos->mailType == SosMailType ?   1 :  0;
-    unsigned int maxChancesLeft = sos->mailType == SosMailType ? 100 : 99;
+    minChancesLeft = sos->mailType == SosMailType ?   1 :  0;
+    maxChancesLeft = sos->mailType == SosMailType ? 100 : 99;
     forever {
         fprintf(stdout, LIGHT "Enter the number of " LGREEN "chances left" RESET LIGHT " (%d to %d, leave it blank for %d).\n" RESET, minChancesLeft, maxChancesLeft, maxChancesLeft);
         if (requestAndValidateIntegerInput(&selection, 1, maxChancesLeft, "") == NoError && selection >= minChancesLeft && selection <= maxChancesLeft) {
@@ -751,10 +754,6 @@ int requestAndParseSosMailData(struct SosMail *sos)
 
 int requestAndParseSOSMailConvertion(char *password, int *item)
 {
-    if (requestAndValidateStringInput(password, 54, 0, NULL, LIGHT "Enter the SOS, A-OK or Thank-You Mail's " LGREEN "password" RESET LIGHT " (case sensitive)\n" RESET) != NoError) {
-        return InputError;
-    }
-
     unsigned int i = 0;
     unsigned int selection = -1;
     int errorCode = NoError;
@@ -762,6 +761,10 @@ int requestAndParseSOSMailConvertion(char *password, int *item)
     int randomHolder;
     char *stringEnd;
     int mostSimilarIndex = 0;
+
+    if (requestAndValidateStringInput(password, 54, 0, NULL, LIGHT "Enter the SOS, A-OK or Thank-You Mail's " LGREEN "password" RESET LIGHT " (case sensitive)\n" RESET) != NoError) {
+        return InputError;
+    }
 
     /* reward item */
     forever {
@@ -817,6 +820,30 @@ void printWonderMailData(const struct WonderMailInfo *mailInfo, const struct Won
     char newPlace[76] = {0};
     char newFloor[57] = {0};
     char newReward[107] = {0};
+
+    char* pkmnHead  = NULL;
+    char* pkmnBody1 = NULL;
+    char* pkmnBody2 = NULL;
+    char* pkmnObjective = NULL;
+    char* dungeonPlace  = NULL;
+    char floorStr[3] = {0};
+
+    char* dungeonFloor  = NULL;
+    char* itemHead      = NULL;
+    char* itemBody1     = NULL;
+    char* itemBody2     = NULL;
+    char* itemObjective = NULL;
+    char* itemReward    = NULL;
+    char* friendAreaReward = NULL;
+
+    char hold[200] = {0};
+
+    char placeAndFloor[120] = {0};
+    char diffColor[50] = {0};
+
+    int i, j;
+    char temp[30] = {0};
+
     strcpy(newHead, mailInfo->head);
     strcpy(newBody1, mailInfo->body1);
     strcpy(newBody2, mailInfo->body2);
@@ -824,22 +851,19 @@ void printWonderMailData(const struct WonderMailInfo *mailInfo, const struct Won
     strcpy(newPlace, mailInfo->place);
     strcpy(newFloor, mailInfo->floor);
     strcpy(newReward, mailInfo->reward);
-    char* pkmnHead = strstr(newHead, pkmnSpeciesStr[mail->pkmnTarget]);
-    char* pkmnBody1 = strstr(newBody1, pkmnSpeciesStr[mail->pkmnTarget]);
-    char* pkmnBody2 = strstr(newBody2, pkmnSpeciesStr[mail->pkmnTarget]);
-    char* pkmnObjective = strstr(newObjective, pkmnSpeciesStr[mail->pkmnTarget]);
-    char* dungeonPlace = strstr(newPlace, dungeonsStr[mail->dungeon]);
-    char floorStr[3];
+    pkmnHead = strstr(newHead, pkmnSpeciesStr[mail->pkmnTarget]);
+    pkmnBody1 = strstr(newBody1, pkmnSpeciesStr[mail->pkmnTarget]);
+    pkmnBody2 = strstr(newBody2, pkmnSpeciesStr[mail->pkmnTarget]);
+    pkmnObjective = strstr(newObjective, pkmnSpeciesStr[mail->pkmnTarget]);
+    dungeonPlace = strstr(newPlace, dungeonsStr[mail->dungeon]);
     sprintf(floorStr, "%d", mail->floor % 100);
-    char* dungeonFloor = strstr(newFloor, floorStr);
-    char* itemHead = strstr(newHead, itemsStr[mail->itemDeliverFind]);
-    char* itemBody1 = strstr(newBody1, itemsStr[mail->itemDeliverFind]);
-    char* itemBody2 = strstr(newBody2, itemsStr[mail->itemDeliverFind]);
-    char* itemObjective = strstr(newObjective, itemsStr[mail->itemDeliverFind]);
-    char* itemReward = strstr(newReward, itemsStr[mail->itemReward]);
-    char* friendAreaReward = strstr(newReward, friendAreasStr[mail->friendAreaReward]);
-
-    char hold[200] = {0};
+    dungeonFloor = strstr(newFloor, floorStr);
+    itemHead = strstr(newHead, itemsStr[mail->itemDeliverFind]);
+    itemBody1 = strstr(newBody1, itemsStr[mail->itemDeliverFind]);
+    itemBody2 = strstr(newBody2, itemsStr[mail->itemDeliverFind]);
+    itemObjective = strstr(newObjective, itemsStr[mail->itemDeliverFind]);
+    itemReward = strstr(newReward, itemsStr[mail->itemReward]);
+    friendAreaReward = strstr(newReward, friendAreasStr[mail->friendAreaReward]);
 
     if (pkmnHead) {
         strcpy(hold, pkmnHead);
@@ -959,10 +983,7 @@ void printWonderMailData(const struct WonderMailInfo *mailInfo, const struct Won
         strcat(newObjective, COLOR_YELLOW RESET COLOR_BACKGROUND);        
     }
 
-    char placeAndFloor[120] = {0};
     sprintf(placeAndFloor, "%s  %s", newPlace, newFloor);
-    
-    char diffColor[50] = {0};
     strcpy(diffColor, mailInfo->difficulty == 'E' ? RESET COLOR_BACKGROUND : mailInfo->difficulty == 'D' || mailInfo->difficulty == 'C' ? COLOR_GREEN : mailInfo->difficulty == 'B' || mailInfo->difficulty == 'A' ? COLOR_CYAN : mailInfo->difficulty == 'S' ? COLOR_RED : LYELLOW);
     
 
@@ -974,8 +995,6 @@ void printWonderMailData(const struct WonderMailInfo *mailInfo, const struct Won
 #define EndOfLineString "\n"
 #endif
 
-    int i, j;
-    char temp[30] = {0};
     for (i = j = 0; i < 24; ++i) {
         if (i && i % 4 == 0) {
             temp[i + j++] = '\0';
@@ -987,17 +1006,17 @@ void printWonderMailData(const struct WonderMailInfo *mailInfo, const struct Won
                     COLOR_BORDER COLOR_BACKGROUND "* " RESET WHITE COLOR_BACKGROUND UNDERLINE "%-58s" RESET COLOR_BACKGROUND COLOR_BORDER " *" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " COLOR_BORDER "%-45s*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "%-83s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "%-83s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "* " COLOR_BORDER "%-45s*" RESET EndOfLineString
+                    COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "%-83s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString, newHead, "", newBody1, newBody2);
+    fprintf(stdout, COLOR_BORDER COLOR_BACKGROUND "* " COLOR_BORDER "%-45s*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Client:     " RESET COLOR_BACKGROUND "%-33s" COLOR_BORDER "*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Objective:  " RESET COLOR_BACKGROUND "%-71s" COLOR_BORDER "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Place:      " RESET COLOR_BACKGROUND "%-109s" COLOR_BORDER "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Difficulty: " RESET COLOR_BACKGROUND "%s%c%-32s" COLOR_BORDER "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Reward:     " RESET COLOR_BACKGROUND "%-109s" COLOR_BORDER "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Password:   " RESET COLOR_BACKGROUND "%s" COLOR_YELLOW "%s" RESET COLOR_BACKGROUND "%-25s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
+                    COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Place:      " RESET COLOR_BACKGROUND "%-109s" COLOR_BORDER "*" RESET EndOfLineString, "", mailInfo->client, newObjective, placeAndFloor);
+    fprintf(stdout, COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Difficulty: " RESET COLOR_BACKGROUND "%s%c%-32s" COLOR_BORDER "*" RESET EndOfLineString
+                    COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Reward:     " RESET COLOR_BACKGROUND "%-109s" COLOR_BORDER "*" RESET EndOfLineString, diffColor, mailInfo->difficulty, "", newReward);
+    fprintf(stdout, COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Password:   " RESET COLOR_BACKGROUND "%s" COLOR_YELLOW "%s" RESET COLOR_BACKGROUND "%-25s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "            %s" COLOR_YELLOW "%s" RESET COLOR_BACKGROUND "%-25s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "************************************************" RESET EndOfLineString,
-            newHead, "", newBody1, newBody2, "", mailInfo->client, newObjective, placeAndFloor, diffColor, mailInfo->difficulty, "", newReward, temp, temp + 5, temp + 10, temp + 15, temp + 20, temp + 25);
+                    temp, temp + 5, temp + 10, temp + 15, temp + 20, temp + 25);
 #else
     printWonderMailDataToFile(mailInfo, stdout);
 #endif
@@ -1010,17 +1029,28 @@ void printSOSData(const struct SosMailInfo *mailInfo, const struct SosMail *mail
     char newPlace[76]   = {0};
     char newFloor[57]   = {0};
     char newReward[106] = {0};
+
+    char* dungeonPlace = NULL;
+    char floorStr[3] = {0};
+    char* dungeonFloor = NULL;
+    char* itemReward = NULL;
+
+    char hold[200] = {0};
+
+    char placeAndFloor[120] = {0};
+    char diffColor[50] = {0};
+
+    int i, j;
+    char temp[70] = {0};
+
     sprintf(newClient, "%s " COLOR_GREEN "(%s)" RESET COLOR_BACKGROUND, mailInfo->nickname, mailInfo->client);
     strcpy(newPlace, mailInfo->place);
     strcpy(newFloor, mailInfo->floor);
     strcpy(newReward, mailInfo->reward);
-    char* dungeonPlace = strstr(newPlace, dungeonsStr[mail->dungeon]);
-    char floorStr[3];
+    dungeonPlace = strstr(newPlace, dungeonsStr[mail->dungeon]);
     sprintf(floorStr, "%d", mail->floor % 100);
-    char* dungeonFloor = strstr(newFloor, floorStr);
-    char* itemReward = strstr(newReward, itemsStr[mail->itemReward]);
-
-    char hold[200] = {0};
+    dungeonFloor = strstr(newFloor, floorStr);
+    itemReward = strstr(newReward, itemsStr[mail->itemReward]);
 
     if (dungeonPlace) {
         strcpy(hold, dungeonPlace);
@@ -1053,10 +1083,7 @@ void printSOSData(const struct SosMailInfo *mailInfo, const struct SosMail *mail
         strcat(newReward, COLOR_GREEN RESET COLOR_BACKGROUND);
     }
 
-    char placeAndFloor[120] = {0};
     sprintf(placeAndFloor, "%s  %s", newPlace, newFloor);
-
-    char diffColor[50] = {0};
     strcpy(diffColor, mailInfo->difficulty == 'E' ? RESET COLOR_BACKGROUND : mailInfo->difficulty == 'D' || mailInfo->difficulty == 'C' ? COLOR_GREEN : mailInfo->difficulty == 'B' || mailInfo->difficulty == 'A' ? COLOR_CYAN : mailInfo->difficulty == 'S' ? COLOR_RED : LYELLOW);
 
 #ifndef NO_USE_COLORS
@@ -1067,8 +1094,6 @@ void printSOSData(const struct SosMailInfo *mailInfo, const struct SosMail *mail
 #define EndOfLineString "\n"
 #endif
 
-    int i, j;
-    char temp[70] = {0};
     for (i = j = 0; i < 54; ++i) {
         if (i ==  5 || i == 13 || i == 18 ||
             i == 23 || i == 31 || i == 36 ||
@@ -1082,19 +1107,18 @@ void printSOSData(const struct SosMailInfo *mailInfo, const struct SosMail *mail
                     COLOR_BORDER COLOR_BACKGROUND "* " RESET WHITE COLOR_BACKGROUND UNDERLINE "%-46s" RESET COLOR_BACKGROUND COLOR_BORDER " *" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " COLOR_BORDER "%-47s*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "%-47s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "* " COLOR_BORDER "%-47s*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Client:       " RESET COLOR_BACKGROUND "%-71s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
+                    COLOR_BORDER COLOR_BACKGROUND "* " COLOR_BORDER "%-47s*" RESET EndOfLineString, mailInfo->head, "", mailInfo->body, "");
+    fprintf(stdout, COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Client:       " RESET COLOR_BACKGROUND "%-71s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Objective:    " RESET COLOR_BACKGROUND "%-33s" COLOR_BORDER "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Place:        " RESET COLOR_BACKGROUND "%-109s" COLOR_BORDER "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Difficulty:   " RESET COLOR_BACKGROUND "%s%c%-32s" COLOR_BORDER "*" RESET EndOfLineString
+                    COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Place:        " RESET COLOR_BACKGROUND "%-109s" COLOR_BORDER "*" RESET EndOfLineString, newClient, mailInfo->objective, placeAndFloor);
+    fprintf(stdout, COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Difficulty:   " RESET COLOR_BACKGROUND "%s%c%-32s" COLOR_BORDER "*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Reward:       " RESET COLOR_BACKGROUND "%-71s" COLOR_BORDER "*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "ID:           " RESET COLOR_BACKGROUND "%-33s" COLOR_BORDER "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "%s" WHITE COLOR_BACKGROUND "%s"             RESET COLOR_BACKGROUND "%-33s" COLOR_BORDER "%s" RESET "%s"
-                    COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Password:     " RESET COLOR_BACKGROUND "%s" COLOR_YELLOW "%s" RESET COLOR_BACKGROUND "%-20s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
+                    COLOR_BORDER COLOR_BACKGROUND "%s" WHITE COLOR_BACKGROUND "%s"             RESET COLOR_BACKGROUND "%-33s" COLOR_BORDER "%s" RESET "%s", diffColor, mailInfo->difficulty, "", newReward, mailInfo->id, mail->mailType == SosMailType ? "* " : "\r", mail->mailType == SosMailType ? "Chances left: " : "\r", mail->mailType == SosMailType ? mailInfo->chancesLeft : "\r", mail->mailType == SosMailType ? "*" : "\r", mail->mailType == SosMailType ? "\n" : "\r");
+    fprintf(stdout, COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Password:     " RESET COLOR_BACKGROUND "%s" COLOR_YELLOW "%s" RESET COLOR_BACKGROUND "%-20s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "              %s" COLOR_YELLOW "%s" RESET COLOR_BACKGROUND "%-20s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "              %s" COLOR_YELLOW "%s" RESET COLOR_BACKGROUND "%-20s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "**************************************************" RESET EndOfLineString,
-            mailInfo->head, "", mailInfo->body, "", newClient, mailInfo->objective, placeAndFloor, diffColor, mailInfo->difficulty, "", newReward, mailInfo->id, mail->mailType == SosMailType ? "* " : "\r", mail->mailType == SosMailType ? "Chances left: " : "\r", mail->mailType == SosMailType ? mailInfo->chancesLeft : "\r", mail->mailType == SosMailType ? "*" : "\r", mail->mailType == SosMailType ? "\n" : "\r", temp, temp + 6, temp + 15, temp + 21, temp + 27, temp + 36, temp + 42, temp + 48, temp + 57);
+                    COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "              %s" COLOR_YELLOW "%s" RESET COLOR_BACKGROUND "%-20s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString, temp, temp + 6, temp + 15, temp + 21, temp + 27, temp + 36, temp + 42, temp + 48, temp + 57);
+    fprintf(stdout, COLOR_BORDER COLOR_BACKGROUND "**************************************************" RESET EndOfLineString);
 #else
     printSOSDataToFile(mailInfo, mail->mailType, stdout);
 #endif
@@ -1105,11 +1129,11 @@ void printSOSData(const struct SosMailInfo *mailInfo, const struct SosMail *mail
 void printWonderMailDataToFile(const struct WonderMailInfo *mailInfo, FILE *f)
 {
     char placeAndFloor[51] = {0};
-    sprintf(placeAndFloor, "%s  %s", mailInfo->place, mailInfo->floor);
 
     char passwordHalf1[13] = {0};
     char passwordHalf2[13] = {0};
 
+    sprintf(placeAndFloor, "%s  %s", mailInfo->place, mailInfo->floor);
     strncpy(passwordHalf1, mailInfo->password, 12);
     strncpy(passwordHalf2, mailInfo->password + 12, 12);
 
@@ -1134,14 +1158,13 @@ void printWonderMailDataToFile(const struct WonderMailInfo *mailInfo, FILE *f)
 
 void printSOSDataToFile(const struct SosMailInfo *mailInfo, enum MailType mailType, FILE *f)
 {
-
     char placeAndFloor[51] = {0};
-    sprintf(placeAndFloor, "%s  %s", mailInfo->place, mailInfo->floor);
 
     char passwordThird1[19] = {0};
     char passwordThird2[19] = {0};
     char passwordThird3[19] = {0};
 
+    sprintf(placeAndFloor, "%s  %s", mailInfo->place, mailInfo->floor);
     strncpy(passwordThird1, mailInfo->password, 18);
     strncpy(passwordThird2, mailInfo->password + 18, 18);
     strncpy(passwordThird3, mailInfo->password + 36, 18);
@@ -1171,10 +1194,11 @@ int requestAndValidateIntegerInput(unsigned int *n, int allowEmptyValue, int val
 {
 #define MAX_LENGTH_INPUT 20
     char *stringEnd;
+    char stringInput[MAX_LENGTH_INPUT + 1];
+
     fputs(message, stdout);
     fputs(">>> " LGREEN, stdout);
     fflush(stdout);
-    char stringInput[MAX_LENGTH_INPUT + 1];
     (void)!fgets(stringInput, MAX_LENGTH_INPUT, stdin);
     if (stringInput[strlen(stringInput) - 1] == '\n') {
         stringInput[strlen(stringInput) - 1] = '\0';
@@ -1202,10 +1226,11 @@ int requestAndValidateIntegerInput(unsigned int *n, int allowEmptyValue, int val
 int requestAndValidateStringInput(char* str, unsigned int maxLength, int allowEmptyValue, const char* valueIfEmpty, const char* message)
 {
 #define MAX_LENGTH_INPUT 100 /* if `maxLength` is bigger the behavior is undefined */
+    char stringInput[MAX_LENGTH_INPUT + 1];
+
     fputs(message, stdout);
     fputs(">>> " LGREEN, stdout);
     fflush(stdout);
-    char stringInput[MAX_LENGTH_INPUT + 1];
     (void)!fgets(stringInput, MAX_LENGTH_INPUT, stdin);
     if (stringInput[strlen(stringInput) - 1] == '\n') {
         stringInput[strlen(stringInput) - 1] = '\0';

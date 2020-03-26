@@ -12,10 +12,6 @@ int decodeWM(int argc, const char *argv[]) /* The passwords are received here: i
 {
     char psw[25] = {0};
 
-    if (argc <= 1 || argv == NULL) {
-        requestWonderMailPassword(psw);
-    }
-
     struct WonderMail mail = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     struct WonderMailInfo mailInfo  = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, 0, {0}, {0} }; /* The 8th element is a char */
     int i;
@@ -25,6 +21,9 @@ int decodeWM(int argc, const char *argv[]) /* The passwords are received here: i
     time_t t = -1;
     char *timeStr = NULL;
 
+    if (argc <= 1 || argv == NULL) {
+        requestWonderMailPassword(psw);
+    }
     for (i = 1; i < argc || i == 1; ++i) {
         if (argc > 1) {
             fprintf(stdout, LIGHT "%d.\n" RESET, i);
@@ -42,7 +41,7 @@ int decodeWM(int argc, const char *argv[]) /* The passwords are received here: i
         fputc('\n', stdout);
         f = fopen(LOG_WM_FILENAME, "a");
         if (f) {
-            // header
+            /* header */
             t = time(NULL);
             timeStr = ctime(&t);
             if (timeStr) {
@@ -64,7 +63,13 @@ int decodeWM(int argc, const char *argv[]) /* The passwords are received here: i
 int encodeWM(int argc, const char *argv[])
 {
     struct WonderMail wm;
-    wm.mailType = WonderMailType;
+    char finalPassword[25] = {0};
+    int errorCode = NoError;
+    struct WonderMailInfo wmInfo = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, 0, {0}, {0} };
+
+    FILE *f = NULL;
+    time_t t = -1;
+    char *timeStr = NULL;
 
     if (argc != 10 || argv == NULL) {
         requestAndParseWonderMailData(&wm);
@@ -73,22 +78,18 @@ int encodeWM(int argc, const char *argv[])
         return InputError;
     }
 
-    char finalPassword[25] = {0};
-    int errorCode = encodeWonderMail(&wm, finalPassword, 1); /* "1": Try special missions */
+    errorCode = encodeWonderMail(&wm, finalPassword, 1); /* "1": Try special missions */
     if (errorCode != NoError) {
         return errorCode;
     }
 
     /* Get the full Wonder Mail info */
-    struct WonderMailInfo wmInfo = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, 0, {0}, {0} };
     setWonderMailInfo(&wm, &wmInfo);
     strncpy(wmInfo.password, finalPassword, 24);
     printWonderMailData(&wmInfo, &wm);
-    FILE *f = fopen(LOG_WM_FILENAME, "a");
-    time_t t = -1;
-    char *timeStr = NULL;
+    f = fopen(LOG_WM_FILENAME, "a");
     if (f) {
-        // header
+        /* header */
         t = time(NULL);
         timeStr = ctime(&t);
         if (timeStr) {
@@ -274,10 +275,6 @@ int decodeSOSM(int argc, const char *argv[])
 {
     char psw[55] = {0};
 
-    if (argc <= 1) {
-        requestSOSMailPassword(psw);
-    }
-
     struct SosMail mail = { 0, 0, 0, 0, 0, 0, 0, {0}, 0, 0, 0, 0, 0, 0, 0 };
     struct SosMailInfo mailInfo  = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, 0, {0}, {0}, {0}, {0} }; /* The 8th element is a char */
     int i;
@@ -286,6 +283,10 @@ int decodeSOSM(int argc, const char *argv[])
     FILE *f = NULL;
     time_t t = -1;
     char *timeStr = NULL;
+
+    if (argc <= 1) {
+        requestSOSMailPassword(psw);
+    }
 
     for (i = 1; i < argc || i == 1; ++i) {
         if (argc > 1) {
@@ -304,7 +305,7 @@ int decodeSOSM(int argc, const char *argv[])
         fputc('\n', stdout);
         f = fopen(LOG_SOS_FILENAME, "a");
         if (f) {
-            // header
+            /* header */
             t = time(NULL);
             timeStr = ctime(&t);
             if (timeStr) {
@@ -326,6 +327,13 @@ int decodeSOSM(int argc, const char *argv[])
 int encodeSOSM(int argc, const char *argv[])
 {
     struct SosMail sos;
+    char finalPassword[55] = {0};
+    int errorCode = NoError;
+    struct SosMailInfo sosInfo  = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, 0, {0}, {0}, {0}, {0} };
+
+    FILE *f = NULL;
+    time_t t = -1;
+    char *timeStr = NULL;
 
     if (argc != 7 || argv == NULL) {
         requestAndParseSosMailData(&sos);
@@ -334,22 +342,18 @@ int encodeSOSM(int argc, const char *argv[])
         return InputError;
     }
 
-    char finalPassword[55] = {0};
-    int errorCode = encodeSosMail(&sos, finalPassword);
+    errorCode = encodeSosMail(&sos, finalPassword);
     if (errorCode) {
         return errorCode;
     }
 
     /* Get the full SOS Mail info */
-    struct SosMailInfo sosInfo  = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, 0, {0}, {0}, {0}, {0} };
     setSosInfo(&sos, &sosInfo);
     strncpy(sosInfo.password, finalPassword, 54);
     printSOSData(&sosInfo, &sos);
-    FILE *f = fopen(LOG_SOS_FILENAME, "a");
-    time_t t = -1;
-    char *timeStr = NULL;
+    f = fopen(LOG_SOS_FILENAME, "a");
     if (f) {
-        // header
+        /* header */
         t = time(NULL);
         timeStr = ctime(&t);
         if (timeStr) {
@@ -528,7 +532,7 @@ int convertSOS(int argc, const char *argv[])
         if (timeStr) {
             timeStr[strlen(timeStr) - 1] = '\0'; /* remove the trailing newline */
         }
-        // header
+        /* header */
         fprintf(f, "%s ~~~~~~~~~~~~~~~~~~~~~~~~~\n", timeStr);
 
         if (strlen(SOSPassword) == 54) {
@@ -587,7 +591,19 @@ int convertSOS(int argc, const char *argv[])
 
 int generateMassiveItemMissions(int dungeon, int item, int amount)
 {
-    int errorCode = checkDungeon(dungeon, SosMailType);
+    int errorCode = NoError;
+
+    struct WonderMail wm = { WonderMailType, HelpMe, 0, 0, 0, 0, MoneyMoneyItem, 0, 0, 0, 0, 0xFF, 0, 0 };
+    struct WonderMailInfo wmInfo = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, '\0', {0}, {0} };
+    char password[25] = {0};
+    int i;
+    FILE *f = NULL;
+    time_t t = -1;
+    char *timeStr = NULL;
+
+    wm.itemReward = item;
+    wm.dungeon = dungeon;
+    errorCode = checkDungeon(dungeon, SosMailType);
     if (errorCode == DungeonOutOfRangeError) {
         printMessage(stderr, ErrorMessage, "The dungeon must be between " LGREEN "0" RESET " [" LGREEN "%s" RESET "] and " LGREEN "%d" RESET " [" LGREEN "%s" RESET "]. Current value: " LRED "%u" RESET " [" LGREEN "INVALID" RESET "]\n\n", dungeonsStr[0], dungeonsCount - 1, dungeonsStr[dungeonsCount - 1], dungeon);
         return errorCode;
@@ -603,13 +619,6 @@ int generateMassiveItemMissions(int dungeon, int item, int amount)
         amount = difficulties[dungeon][0] - forbiddenFloorsInDungeons[dungeon][0];
     }
 
-    struct WonderMail wm = { WonderMailType, HelpMe, 0, 0, 0, 0, MoneyMoneyItem, item, 0, 0, 0, 0xFF, dungeon, 0 };
-    struct WonderMailInfo wmInfo = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, '\0', {0}, {0} };
-    char password[25] = {0};
-    int i;
-    FILE *f = NULL;
-    time_t t = -1;
-    char *timeStr = NULL;
     for (i = 0; i < amount; ++i) {
         wm.floor = i + 1;
         while (checkFloor(wm.floor, wm.dungeon) != NoError) {
@@ -628,7 +637,7 @@ int generateMassiveItemMissions(int dungeon, int item, int amount)
         }
         f = fopen(LOG_WM_FILENAME, "a");
         if (f) {
-            // header
+            /* header */
             t = time(NULL);
             timeStr = ctime(&t);
             if (timeStr) {
@@ -646,7 +655,24 @@ int generateMassiveItemMissions(int dungeon, int item, int amount)
 
 int generateMassiveHighRankMissions(int dungeon, int item, int amount)
 {
-    int errorCode = checkDungeon(dungeon, SosMailType);
+    int errorCode = NoError;
+    struct WonderMail wm = { WonderMailType, HelpMe, 0, 0, 0, 0, MoneyMoneyItem, 0, 0, 0, 0, 0xFF, 0, 0 };
+    struct WonderMailInfo wmInfo = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, '\0', {0}, {0} };
+    char password[25] = {0};
+
+    FILE *f = NULL;
+    time_t t = -1;
+    char *timeStr = NULL;
+
+    char calculatedDiffChar = 'E';
+    char diffColor[50] = {0};
+    int targetRank = 12;
+    int i;
+    int top = 0;
+
+    wm.itemReward = item;
+    wm.dungeon = dungeon;
+    errorCode = checkDungeon(dungeon, SosMailType);
     if (errorCode == DungeonOutOfRangeError) {
         printMessage(stderr, ErrorMessage, "The dungeon must be between " LGREEN "0" RESET " [" LGREEN "%s" RESET "] and " LGREEN "%d" RESET " [" LGREEN "%s" RESET "]. Current value: " LRED "%u" RESET " [" LGREEN "INVALID" RESET "]\n\n", dungeonsStr[0], dungeonsCount - 1, dungeonsStr[dungeonsCount - 1], dungeon);
         return errorCode;
@@ -661,19 +687,6 @@ int generateMassiveHighRankMissions(int dungeon, int item, int amount)
         printMessage(stderr, WarningMessage, "No enough floors. Truncated to " LGREEN "%d" RESET ".\n", difficulties[dungeon][0] - forbiddenFloorsInDungeons[dungeon][0]);
         amount = difficulties[dungeon][0] - forbiddenFloorsInDungeons[dungeon][0];
     }
-
-    struct WonderMail wm = { WonderMailType, HelpMe, 0, 0, 0, 0, MoneyMoneyItem, item, 0, 0, 0, 0xFF, dungeon, 0 };
-    struct WonderMailInfo wmInfo = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, '\0', {0}, {0} };
-    char password[25] = {0};
-
-    FILE *f = NULL;
-    time_t t = -1;
-    char *timeStr = NULL;
-
-    char calculatedDiffChar = 'E';
-    char diffColor[50] = {0};
-    int targetRank = 12;
-    int i;
 
     /* locate the first appareance of a high rank floor */
     for (i = 1; i <= difficulties[dungeon][0]; ++i) {
@@ -694,7 +707,7 @@ int generateMassiveHighRankMissions(int dungeon, int item, int amount)
         i = difficulties[dungeon][0] - forbiddenFloorsInDungeons[dungeon][0] - amount + 1;
     }
     /* now generate the mails */
-    int top = i + amount;
+    top = i + amount;
     for (; i < top; ++i) {
         wm.floor = i;
         while (checkFloor(wm.floor, wm.dungeon) != NoError) {
@@ -713,7 +726,7 @@ int generateMassiveHighRankMissions(int dungeon, int item, int amount)
         }
         f = fopen(LOG_WM_FILENAME, "a");
         if (f) {
-            // header
+            /* header */
             t = time(NULL);
             timeStr = ctime(&t);
             if (timeStr) {
@@ -731,10 +744,6 @@ int generateMassiveHighRankMissions(int dungeon, int item, int amount)
 
 int unlockExclusivePokemon(enum GameType gameType)
 {
-    if (gameType != RedRescueTeam && gameType != BlueRescueTeam) {
-        printMessage(stderr, ErrorMessage, "Unrecognized game type.\n");
-        return InputError;
-    }
     int pokemonRedRescueTeam[]  = { 137, 251, 336, 340, 374 }; /* Porygon, Mantine, Plusle, Roselia and Feebas */
     int pokemonBlueRescueTeam[] = { 129, 131, 190, 337 }; /* Magikarp, Lapras, Aipom and Minum */
 
@@ -748,6 +757,12 @@ int unlockExclusivePokemon(enum GameType gameType)
 
     int i;
     int top = gameType == RedRescueTeam ? 5 : 4;
+
+    if (gameType != RedRescueTeam && gameType != BlueRescueTeam) {
+        printMessage(stderr, ErrorMessage, "Unrecognized game type.\n");
+        return InputError;
+    }
+
     for (i = 0; i < top; ++i) {
         wm.pkmnClient = gameType == RedRescueTeam ? pokemonRedRescueTeam[i] : pokemonBlueRescueTeam[i];
         wm.pkmnTarget = wm.pkmnClient;
@@ -760,7 +775,7 @@ int unlockExclusivePokemon(enum GameType gameType)
         }
         f = fopen(LOG_WM_FILENAME, "a");
         if (f) {
-            // header
+            /* header */
             t = time(NULL);
             timeStr = ctime(&t);
             if (timeStr) {
@@ -803,7 +818,7 @@ int unlockDungeons()
         }
         f = fopen(LOG_WM_FILENAME, "a");
         if (f) {
-            // header
+            /* header */
             t = time(NULL);
             timeStr = ctime(&t);
             if (timeStr) {

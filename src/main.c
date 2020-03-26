@@ -20,6 +20,11 @@ int requestGame();
 
 int main(int argc, const char *argv[])
 {
+    int i; /* iterations */
+    const char* databaseTypesStr[] = { "pokemon", "items", "dungeons", "areas", "missions", "rewards", "mails" };
+    int selection, result = 0, item = 0, dungeon = 0, game = 0;
+    int autodetectResult = -1;
+
     printMessages = 1; /* enable messages */
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
@@ -31,10 +36,7 @@ int main(int argc, const char *argv[])
           "..............................................................\n\n", stdout);
     fflush(stdout);
 
-    int i; /* iterations */
-
     /* Basics command line options */
-    const char* databaseTypesStr[] = { "pokemon", "items", "dungeons", "areas", "missions", "rewards", "mails" };
     if (argc > 1 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))) {
         showHelp(argv[0]);
         return 0;
@@ -63,8 +65,7 @@ int main(int argc, const char *argv[])
     /* A seed to generate random numbers */
     srand((unsigned int)time(NULL));
 
-    int selection, result = 0, item = 0, dungeon = 0, game = 0;
-    int autodetectResult = autodetect(argc, argv);
+    autodetectResult = autodetect(argc, argv);
     if (autodetectResult == -1) {
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
         (void)result;
@@ -134,14 +135,14 @@ int main(int argc, const char *argv[])
 
 int autodetect(int argc, const char *argv[])
 {
+
+    size_t lenghtArg1 = argc >= 1 ? strlen(argv[1]) : 0;
+    size_t lenghtArg2 = argc >= 3 ? strlen(argv[2]) : 0;
     /* no input */
     if (argc <= 1) {
         return -1;
     }
-
-    size_t lenghtArg1 = strlen(argv[1]);
-    size_t lenghtArg2 = argc >= 3 ? strlen(argv[2]) : 0;
-    fprintf(stdout, "Autodetected: ");
+    printMessage(stdout, InfoMessage, "Autodetected: ");
     if (lenghtArg1 >= 20 && lenghtArg1 <= 28) {
         fprintf(stdout, "Decode WM\n\n");
         return decodeWM(argc, argv);

@@ -9,9 +9,9 @@
 int levenshtein(const char *s1, const char *s2)
 {
     unsigned int s1len, s2len, x, y, lastdiag, olddiag;
+    unsigned int column[101]; /* 100 characters maximum (this should be enough for this application) */
     s1len = strlen(s1);
     s2len = strlen(s2);
-    unsigned int column[s1len+1];
     for (y = 1; y <= s1len; y++)
         column[y] = y;
     for (x = 1; x <= s2len; x++) {
@@ -28,16 +28,17 @@ int levenshtein(const char *s1, const char *s2)
 /* Makes usage of the Levenshtein algorithm to find the index of the most similar string in an array. Return -1 if no result can be retrieved (because, for example, the array's lenght is zero or less) */
 int findMostSimilarStringInArray(const char *str, const char **strArray, int arrayLenght)
 {
-    if (arrayLenght <= 0) {
-        return -1;
-    }
 
     /* assume that the most similar string is the first one */
     int index = 0;
-    int currentDistance = levenshtein(str, strArray[0]);
-    int minDistance = currentDistance;
-
+    int currentDistance;
+    int minDistance;
     int i;
+
+    if (arrayLenght <= 0) {
+        return -1;
+    }
+    minDistance = currentDistance = levenshtein(str, strArray[0]);
     for (i = 1; i < arrayLenght; ++i) {
         currentDistance = levenshtein(str, strArray[i]);
         if (currentDistance < minDistance) {
