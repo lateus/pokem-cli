@@ -31,16 +31,6 @@ void printSOSData(const struct SosMailInfo *mailInfo, const struct SosMail *mail
 void printWonderMailDataToFile(const struct WonderMailInfo *mailInfo, FILE *f);
 void printSOSDataToFile(const struct SosMailInfo *mailInfo, enum MailType mailType, FILE *f);
 
-int checkPkmnInWonderMail(int index, int printErrorMessages);
-int checkPkmnInSosMail(int index, int printErrorMessages);
-int checkDungeonInWonderMail(int index, int printErrorMessages);
-int checkDungeonInSosMail(int index, int printErrorMessages);
-int checkFloorForDungeon(int floor, int dungeonIndex, int printErrorMessages);
-int checkItemToFindDeliverRangeInWonderMail(int index, int printErrorMessages);
-int checkItemToFindDeliverByDungeonInWonderMail(int itemIndex, int dungeonIndex, int printErrorMessages);
-int checkItemRange(int index, int printErrorMessages);
-int checkMailID(int mailID, int printErrorMessages);
-
 int requestAndValidateIntegerInput(unsigned int *n, int allowEmptyValue, int valueIfEmpty, const char* message);
 int requestAndValidateStringInput(char* str, unsigned int maxLength, int allowEmptyValue, const char* valueIfEmpty, const char* message);
 

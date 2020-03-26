@@ -1,6 +1,7 @@
 #include "view.h"
 #include "../utils/colors.h"
 #include "../utils/utils.h"
+#include "../../lib/pokem.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -159,7 +160,7 @@ void showDatabase(enum DatabaseType type)
               "(" LGREEN "2" RESET ") Thank-You Mail\n", stdout);
         break;
     default:
-        fprintf(stderr, LRED "ERROR:" RESET LIGHT " Invalid request\n" RESET);   /* this should never happen */
+        printMessage(stderr, ErrorMessage, "Invalid request\n"); /* this should never happen */
         break;
     }
 }
@@ -206,6 +207,7 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
 {
     unsigned int i = 0;
     unsigned int selection = -1; /* holds integers values */
+    int errorCode = NoError;
     char stringInput[101]; /* holds strings values */
     char *stringEnd;
     int randomHolder;
@@ -226,7 +228,7 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
         if (selection < 5) { /* `selection` is unsigned so it's always >= 0 */
             break; /* input is ok */
         }
-        fprintf(stderr, LRED "INPUT ERROR\n" RESET);
+        printMessage(stderr, ErrorMessage, "Choice " LRED "%d" RESET " is out of range.\n", selection);
     }
     wm->missionType = selection;
 
@@ -234,7 +236,7 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
     forever {
         do {
             randomHolder = rand() % pkmnSpeciesCount;
-        } while (checkPkmnInWonderMail(randomHolder, 0) != NoError);
+        } while (checkPokemon(randomHolder, WonderMailType) != NoError);
         if (requestAndValidateStringInput(stringInput, 100, 1, pkmnSpeciesStr[randomHolder], LIGHT "Enter the name or room index of the " LGREEN "client pokemon" RESET LIGHT " (leave it blank for random).\n" RESET) != NoError) {
             continue;
         }
@@ -244,27 +246,31 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
             for (i = 0; i < pkmnSpeciesCount; ++i) {
                 if (strcmp(pkmnSpeciesStr[i], stringInput) == 0) {
                     selection = i;
-                    break; /* item found */
+                    break; /* pkmn found */
                 }
             }
 
             if (selection == pkmnSpeciesCount) {
                 mostSimilarIndex = findMostSimilarStringInArray(stringInput, pkmnSpeciesStr, pkmnSpeciesCount);
                 if (mostSimilarIndex == -1) {
-                    fprintf(stderr, LRED "ERROR:" RESET LIGHT " Cannot find pokemon " LGREEN "\"%s\"" RESET LIGHT " in the database.\n", stringInput);
-                    fputs("Re-check your spelling.\n" RESET, stderr);
+                    printMessage(stderr, ErrorMessage, "Cannot find pokemon " LRED "\"%s\"" RESET " in the database.\n", stringInput);
                     continue;
                 } else {
                     selection = mostSimilarIndex;
-                    fprintf(stderr, LGREEN "%s" RESET LIGHT " has been assumed.\n" RESET, pkmnSpeciesStr[mostSimilarIndex]);
+                    printMessage(stderr, InfoMessage, LGREEN "%s" RESET " has been assumed.\n", pkmnSpeciesStr[mostSimilarIndex]);
                 }
             }
         } else {
-            fprintf(stdout, RESET "(%s" "%d" RESET ") %s\n", selection < pkmnSpeciesCount ? LGREEN : LRED, selection, selection < pkmnSpeciesCount ? pkmnSpeciesStr[selection] : LRED "[INVALID]" RESET);
+            printMessage(stdout, InfoMessage, "(%s" "%d" RESET ") %s\n", selection < pkmnSpeciesCount ? LGREEN : LRED, selection, selection < pkmnSpeciesCount ? pkmnSpeciesStr[selection] : LRED "[INVALID]" RESET);
         }
 
-        if (checkPkmnInWonderMail(selection, 1) == NoError) {
+        errorCode = checkPokemon(selection, WonderMailType);
+        if (errorCode == NoError) {
             break; /* input is ok */
+        } else if (errorCode == PokemonOutOfRangeError) {
+            printMessage(stderr, ErrorMessage, "Pokemon must be between " LGREEN "1" RESET " [" LGREEN "%s" RESET "] and " LGREEN "%d" RESET " [" LGREEN "%s" RESET "]. Current value: " LRED "%u" RESET " [" LRED "INVALID" RESET "]\n\n", pkmnSpeciesStr[1], pkmnSpeciesCount - 1, pkmnSpeciesStr[pkmnSpeciesCount - 1], selection);
+        } else if (errorCode == PokemonNotAllowedError) {
+            printMessage(stderr, ErrorMessage, LIGHT "Legendaries" RESET " are not allowed in Wonder Mails. Current value: " LRED "%u" RESET " [" LRED "%s" RESET "]\n\n", wm->pkmnClient, pkmnSpeciesStr[selection]);
         }
     } /* forever */
     wm->pkmnClient = selection;
@@ -274,7 +280,7 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
         forever {
             do {
                 randomHolder = rand() % pkmnSpeciesCount;
-            } while (checkPkmnInWonderMail(randomHolder, 0) != NoError);
+            } while (checkPokemon(randomHolder, WonderMailType) != NoError);
             if (requestAndValidateStringInput(stringInput, 100, 1, pkmnSpeciesStr[randomHolder], LIGHT "Enter the name or room index of the " LGREEN "target pokemon" RESET LIGHT " (leave it blank for random).\n" RESET) != NoError) {
                 continue;
             }
@@ -284,27 +290,31 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
                 for (i = 0; i < pkmnSpeciesCount; ++i) {
                     if (strcmp(pkmnSpeciesStr[i], stringInput) == 0) {
                         selection = i;
-                        break; /* item found */
+                        break; /* pkmn found */
                     }
                 }
 
                 if (selection == pkmnSpeciesCount) {
                     mostSimilarIndex = findMostSimilarStringInArray(stringInput, pkmnSpeciesStr, pkmnSpeciesCount);
                     if (mostSimilarIndex == -1) {
-                        fprintf(stderr, LRED "ERROR:" RESET LIGHT " Cannot find pokemon " LGREEN "\"%s\"" RESET LIGHT " in the database.\n", stringInput);
-                        fputs("Re-check your spelling.\n" RESET, stderr);
+                        printMessage(stderr, ErrorMessage, "Cannot find pokemon " LRED "\"%s\"" RESET " in the database.\n", stringInput);
                         continue;
                     } else {
                         selection = mostSimilarIndex;
-                        fprintf(stderr, LGREEN "%s" RESET LIGHT " has been assumed.\n" RESET, pkmnSpeciesStr[mostSimilarIndex]);
+                        printMessage(stderr, InfoMessage, LGREEN "%s" RESET " has been assumed.\n", pkmnSpeciesStr[mostSimilarIndex]);
                     }
                 }
             } else {
-                fprintf(stdout, RESET "(%s" "%d" RESET ") %s\n", selection < pkmnSpeciesCount ? LGREEN : LRED, selection, selection < pkmnSpeciesCount ? pkmnSpeciesStr[selection] : LRED "[INVALID]" RESET);
+                printMessage(stderr, ErrorMessage, LIGHT "Legendaries" RESET " are not allowed in Wonder Mails. Current value: " LRED "%u" RESET " [" LRED "%s" RESET "]\n\n", wm->pkmnTarget, pkmnSpeciesStr[selection]);
             }
 
-            if (checkPkmnInWonderMail(selection, 1) == NoError) {
+            errorCode = checkPokemon(selection, WonderMailType);
+            if (errorCode == NoError) {
                 break; /* input is ok */
+            } else if (errorCode == PokemonOutOfRangeError) {
+                printMessage(stderr, ErrorMessage, "Pokemon must be between " LGREEN "1" RESET " [" LGREEN "%s" RESET "] and " LGREEN "%d" RESET " [" LGREEN "%s" RESET "]. Current value: " LRED "%u" RESET " [" LRED "INVALID" RESET "]\n\n", pkmnSpeciesStr[1], pkmnSpeciesCount - 1, pkmnSpeciesStr[pkmnSpeciesCount - 1], selection);
+            } else if (errorCode == PokemonNotAllowedError) {
+                printMessage(stderr, ErrorMessage, LIGHT "Legendaries" RESET " are not allowed in Wonder Mails. Current value: " LRED "%u" RESET " [" LRED "%s" RESET "]\n\n", wm->pkmnClient, pkmnSpeciesStr[selection]);
             }
         } /* forever */
         wm->pkmnTarget = selection;
@@ -316,7 +326,7 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
     forever {
         do {
             randomHolder = rand() % dungeonsCount;
-        } while (checkDungeonInWonderMail(randomHolder, 0) != NoError);
+        } while (checkDungeon(randomHolder, WonderMailType) != NoError);
         if (requestAndValidateStringInput(stringInput, 100, 1, dungeonsStr[randomHolder], LIGHT "Enter the name or room index of the " LGREEN "dungeon" RESET LIGHT " (leave it blank for random).\n" RESET) != NoError) {
             continue;
         }
@@ -326,35 +336,50 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
             for (i = 0; i < dungeonsCount; ++i) {
                 if (strcmp(dungeonsStr[i], stringInput) == 0) {
                     selection = i;
-                    break; /* item found */
+                    break; /* dungeon found */
                 }
             }
 
             if (selection == dungeonsCount) {
                 mostSimilarIndex = findMostSimilarStringInArray(stringInput, dungeonsStr, dungeonsCount);
                 if (mostSimilarIndex == -1) {
-                    fprintf(stderr, LRED "ERROR:" RESET LIGHT " Cannot find dungeon " LGREEN "\"%s\"" RESET LIGHT " in the database.\n", stringInput);
-                    fputs("Re-check your spelling.\n" RESET, stderr);
+                    printMessage(stderr, ErrorMessage, "Cannot find dungeon " LRED "\"%s\"" RESET LIGHT " in the database.\n", stringInput);
                     continue;
                 } else {
                     selection = mostSimilarIndex;
-                    fprintf(stderr, LGREEN "%s" RESET LIGHT " has been assumed.\n" RESET, dungeonsStr[mostSimilarIndex]);
+                    printMessage(stderr, InfoMessage, LGREEN "%s" RESET " has been assumed.\n", dungeonsStr[mostSimilarIndex]);
                 }
             }
         } else {
-            fprintf(stdout, RESET "(%s" "%d" RESET ") %s\n", selection < dungeonsCount ? LGREEN : LRED, selection, selection < dungeonsCount ? dungeonsStr[selection] : LRED "[INVALID]" RESET);
+            printMessage(stdout, InfoMessage, "(%s" "%d" RESET ") %s\n", selection < dungeonsCount ? LGREEN : LRED, selection, selection < dungeonsCount ? dungeonsStr[selection] : LRED "[INVALID]" RESET);
         }
 
-        if (checkDungeonInWonderMail(selection, 1) == NoError) {
+        errorCode = checkDungeon(selection, WonderMailType);
+        if (errorCode == NoError) {
             break; /* input is ok */
+        } else if (errorCode == MissionCannotBeAcceptedInDungeonError) {
+            printMessage(stderr, WarningMessage, "A mission in dungeon " LYELLOW "%u" RESET " [" LYELLOW "%s" RESET "] can be generated, but cannot be done.\n\n", selection, selection < dungeonsCount ? dungeonsStr[selection] : "INVALID");
+            break; /* input is semi-ok */
+        } else if (errorCode == DungeonOutOfRangeError) {
+            printMessage(stderr, ErrorMessage, "The dungeon must be between " LGREEN "0" RESET " [" LGREEN "%s" RESET "] and " LGREEN "%d" RESET " [" LGREEN "%s" RESET "]. Current value: " LRED "%u" RESET " [" LGREEN "INVALID" RESET "]\n\n", dungeonsStr[0], dungeonsCount - 1, dungeonsStr[dungeonsCount - 1], selection);
+        } else if (errorCode == DungeonIsInvalidError) {
+            printMessage(stderr, ErrorMessage, "The dungeon " LRED "%u" RESET " [" LRED "INVALID" RESET "] is not a valid dungeon.\n\n", selection);
         }
     } /* forever */
     wm->dungeon = selection;
 
     /* floor */
     forever {
-        if (requestAndValidateIntegerInput(&selection, 1, 1 + rand() % difficulties[wm->dungeon][0], LIGHT "Enter the " LGREEN "floor" RESET LIGHT " (leave it blank for random).\n" RESET) == NoError && checkFloorForDungeon(selection, wm->dungeon, 1) == NoError) {
-            break; /* input is ok */
+        if (requestAndValidateIntegerInput(&selection, 1, 1 + rand() % difficulties[wm->dungeon][0], LIGHT "Enter the " LGREEN "floor" RESET LIGHT " (leave it blank for random).\n" RESET) == NoError) {
+            errorCode = checkFloor(selection, wm->dungeon);
+            if (errorCode == NoError) {
+                break; /* input is ok */
+            } else if (errorCode == FloorOutOfRangeError) {
+                printMessage(stderr, ErrorMessage, "The dungeon " LIGHT "%u" LIGHT " [" LIGHT "%s" LIGHT "] has floors in the range " LGREEN "1" RESET "-" LGREEN "%d" RESET " floors. Current value: " LRED "%u" RESET "\n\n", wm->dungeon, wm->dungeon < dungeonsCount ? dungeonsStr[wm->dungeon] : "INVALID", difficulties[wm->dungeon][0], selection);
+            } else if (errorCode == FloorInvalidInDungeonError) {
+                printMessage(stderr, ErrorMessage, "A mission cannot be made in floor " LRED "%d" RESET " of dungeon " LIGHT "%u" RESET " [" LIGHT "%s" RESET "].\n\n",
+                            selection, wm->dungeon, wm->dungeon < dungeonsCount ? dungeonsStr[wm->dungeon] : "INVALID");
+            }
         }
     } /* forever */
     wm->floor = selection;
@@ -362,7 +387,7 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
     /* item to find/deliver */
     if (wm->missionType == FindItem || wm->missionType == DeliverItem) {
         forever {
-            randomHolder = wm->missionType == FindItem ? (unsigned int)itemsInDungeons[wm->dungeon][1 + rand() % (itemsInDungeons[wm->dungeon][0] - 1)] : 1 + rand() % (itemsCount - 8);
+            randomHolder = wm->missionType == FindItem ? (unsigned int)itemsInDungeons[wm->dungeon][1 + rand() % (itemsInDungeons[wm->dungeon][0] - 1)] : 1 + rand() % (itemsCount - 6);
             fprintf(stdout, LIGHT "Enter the name or room index of the " LGREEN "item to %s" RESET LIGHT " (leave it blank for random).\n" RESET, wm->missionType == FindItem ? "find" : "deliver");
             if (requestAndValidateStringInput(stringInput, 100, 1, itemsStr[randomHolder], "") != NoError) {
                 continue;
@@ -380,24 +405,38 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
                 if (selection == itemsCount) {
                     mostSimilarIndex = findMostSimilarStringInArray(stringInput, itemsStr, itemsCount);
                     if (mostSimilarIndex == -1) {
-                        fprintf(stderr, LRED "ERROR:" RESET LIGHT " Cannot find item " LGREEN "\"%s\"" RESET LIGHT " in the database.\n", stringInput);
-                        fputs("Re-check your spelling.\n" RESET, stderr);
+                        printMessage(stderr, ErrorMessage, "Cannot find item " LRED "\"%s\"" RESET LIGHT " in the database.\n", stringInput);
                         continue;
                     } else {
                         selection = mostSimilarIndex;
-                        fprintf(stderr, LGREEN "%s" RESET LIGHT " has been assumed.\n" RESET, itemsStr[mostSimilarIndex]);
+                        printMessage(stderr, InfoMessage, LGREEN "%s" RESET " has been assumed.\n", dungeonsStr[mostSimilarIndex]);
                     }
                 }
             } else {
-                fprintf(stdout, RESET "(%s" "%d" RESET ") %s\n", selection < itemsCount ? LGREEN : LRED, selection, selection < itemsCount ? itemsStr[selection] : LRED "[INVALID]" RESET);
+                printMessage(stdout, InfoMessage, "(%s" "%d" RESET ") %s\n", selection < itemsCount ? LGREEN : LRED, selection, selection < itemsCount ? itemsStr[selection] : LRED "[INVALID]" RESET);
             }
 
-            if (checkItemToFindDeliverRangeInWonderMail(selection, 1) == NoError) {
+            errorCode = checkItem(selection);
+            if (errorCode == NoError) {
+                errorCode = checkItemExistenceInDungeon(selection, wm->dungeon);
                 if (wm->missionType == DeliverItem) {
                     break; /* input is ok */
-                } else if (checkItemToFindDeliverByDungeonInWonderMail(selection, wm->dungeon, 1) == NoError) {
+                } else if (errorCode == NoError) {
                     break; /* input is ok */
+                } else if (errorCode == ItemNotExistsInDungeonError) {
+                    printMessage(stderr, ErrorMessage, "The item " LRED "%u" RESET " [" LRED "%s" RESET "] can't be found in the dungeon " LIGHT "%u" RESET " [" LIGHT "%s" RESET "] To accept a job about finding an item inside a dungeon, the item must exist on that dungeon. The items that can be found in that dungeon are listed bellow:\n",
+                                                        selection, itemsStr[selection], wm->dungeon, dungeonsStr[wm->dungeon]);
+                    for (i = 1; (int)i <= itemsInDungeons[wm->dungeon][0]; ++i) {
+                        fprintf(stderr, RESET "(" LGREEN "%u" RESET ") %s\n", itemsInDungeons[wm->dungeon][i], itemsStr[itemsInDungeons[wm->dungeon][i]]);
+                    }
+                    fprintf(stderr, "\n\n");
                 }
+            } else if (errorCode == NoItemError) {
+                printMessage(stderr, ErrorMessage, "Item " LRED "0" RESET " [" LRED "%s" RESET "] is not allowed as item to find or deliver.\n\n", itemsStr[0]);
+            } else if (errorCode == ItemCannotBeObtainedError) {
+                printMessage(stderr, ErrorMessage, "Item " LRED "%d" RESET " [" LRED "%s" RESET "] cannot be obtained as reward.\n\n", selection, itemsStr[selection]);
+            } else if (errorCode == ItemOutOfRangeError) {
+                printMessage(stderr, ErrorMessage, "Items to find or deliver must be numbers between " LGREEN "1" RESET " [" LGREEN "%s" RESET "] and " LGREEN "%d" RESET " [" LGREEN "%s" RESET "]. Current value: %u [INVALID]\n\n", itemsStr[1], itemsCount - 5, itemsStr[itemsCount - 5], selection);
             }
         } /* forever */
         wm->itemDeliverFind = selection;
@@ -422,14 +461,14 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
         if (selection < 5) { /* `selection` is unsigned so it's always >= 0 */
             break; /* input is ok */
         }
-        fprintf(stderr, LRED "INPUT ERROR\n" RESET);
+        printMessage(stderr, ErrorMessage, "Choice " LRED "%d" RESET " is out of range.\n", selection);
     } /* forever */
     wm->rewardType = rewardTypes[selection];
 
     /* reward item */
     if (wm->rewardType == Item || wm->rewardType == ItemItem || wm->rewardType == Item2 || wm->rewardType == ItemItem2 || wm->rewardType == MoneyItem || wm->rewardType == MoneyMoneyItem) {
         forever {
-            randomHolder = 1 + rand() % (itemsCount - 1);
+            randomHolder = 1 + rand() % (itemsCount - 6);
             if (requestAndValidateStringInput(stringInput, 100, 1, itemsStr[randomHolder], LIGHT "Enter the name or room index of the " LGREEN "reward item" RESET LIGHT " (leave it blank for random).\n" RESET) != NoError) {
                 continue;
             }
@@ -446,20 +485,26 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
                 if (selection == itemsCount) {
                     mostSimilarIndex = findMostSimilarStringInArray(stringInput, itemsStr, itemsCount);
                     if (mostSimilarIndex == -1) {
-                        fprintf(stderr, LRED "ERROR:" RESET LIGHT " Cannot find item " LGREEN "\"%s\"" RESET LIGHT " in the database.\n", stringInput);
-                        fputs("Re-check your spelling.\n" RESET, stderr);
+                        printMessage(stderr, ErrorMessage, "Cannot find item " LRED "\"%s\"" RESET " in the database.\n", stringInput);
                         continue;
                     } else {
                         selection = mostSimilarIndex;
-                        fprintf(stderr, LGREEN "%s" RESET LIGHT " has been assumed.\n" RESET, itemsStr[mostSimilarIndex]);
+                        printMessage(stderr, InfoMessage, LGREEN "%s" RESET " has been assumed.\n", itemsStr[mostSimilarIndex]);
                     }
                 }
             } else {
-                fprintf(stdout, RESET "(%s" "%d" RESET ") %s\n", selection < itemsCount ? LGREEN : LRED, selection, selection < itemsCount ? itemsStr[selection] : LRED "[INVALID]" RESET);
+                printMessage(stdout, InfoMessage, "(%s" "%d" RESET ") %s\n", selection < itemsCount ? LGREEN : LRED, selection, selection < itemsCount ? itemsStr[selection] : LRED "[INVALID]" RESET);
             }
 
-            if (checkItemRange(selection, 1) == NoError) {
+            errorCode = checkItem(selection);
+            if (errorCode == NoError) {
                 break; /* input is ok */
+            } else if (errorCode == NoItemError) {
+                printMessage(stderr, ErrorMessage, "Item " LRED "0" RESET " [" LRED "%s" RESET "] is not allowed as item to find or deliver.\n\n", itemsStr[0]);
+            } else if (errorCode == ItemCannotBeObtainedError) {
+                printMessage(stderr, ErrorMessage, "Item " LRED "%d" RESET " [" LRED "%s" RESET "] cannot be obtained as reward.\n\n", selection, itemsStr[selection]);
+            } else if (errorCode == ItemOutOfRangeError) {
+                printMessage(stderr, ErrorMessage, "Items to find or deliver must be numbers between " LGREEN "1" RESET " [" LGREEN "%s" RESET "] and " LGREEN "%d" RESET " [" LGREEN "%s" RESET "]. Current value: %u [INVALID]\n\n", itemsStr[1], itemsCount - 5, itemsStr[itemsCount - 5], selection);
             }
         } /* forever */
         wm->itemReward = selection;
@@ -484,7 +529,7 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
             if (selection < 4) { /* `selection` is unsigned so it's always >= 0 */
                 break; /* input is ok */
             }
-            fprintf(stderr, LRED "INPUT ERROR\n" RESET);
+            printMessage(stderr, ErrorMessage, "Choice " LRED "%d" RESET " is out of range.\n", selection);
         }
         wm->friendAreaReward = availableFriendAreasIndexes[selection];
     } else {
@@ -507,6 +552,7 @@ int requestAndParseSosMailData(struct SosMail *sos)
 {
     unsigned int i = 0;
     unsigned int selection = -1;
+    int errorCode = NoError;
     char stringInput[101];
     int randomHolder;
     char *stringEnd;
@@ -528,7 +574,7 @@ int requestAndParseSosMailData(struct SosMail *sos)
                 break; /* input is ok */
             }
         }
-        fprintf(stderr, LRED "INPUT ERROR\n" RESET);
+        printMessage(stderr, ErrorMessage, "Choice " LRED "%d" RESET " is out of range.\n", selection);
     }
     sos->mailType = mailTypes[selection];
 
@@ -543,32 +589,36 @@ int requestAndParseSosMailData(struct SosMail *sos)
             for (i = 0; i < pkmnSpeciesCount; ++i) {
                 if (strcmp(pkmnSpeciesStr[i], stringInput) == 0) {
                     selection = i;
-                    break; /* item found */
+                    break; /* pkmn found */
                 }
             }
 
             if (selection == pkmnSpeciesCount) {
                 mostSimilarIndex = findMostSimilarStringInArray(stringInput, pkmnSpeciesStr, pkmnSpeciesCount);
                 if (mostSimilarIndex == -1) {
-                    fprintf(stderr, LRED "ERROR:" RESET LIGHT " Cannot find pokemon " LGREEN "\"%s\"" RESET LIGHT " in the database.\n", stringInput);
-                    fputs("Re-check your spelling.\n" RESET, stderr);
+                    printMessage(stderr, ErrorMessage, "Cannot find pokemon " LRED "\"%s\"" RESET " in the database.\n", stringInput);
                     continue;
                 } else {
                     selection = mostSimilarIndex;
-                    fprintf(stderr, LGREEN "%s" RESET LIGHT " has been assumed.\n" RESET, pkmnSpeciesStr[mostSimilarIndex]);
+                    printMessage(stderr, InfoMessage, LGREEN "%s" RESET " has been assumed.\n", pkmnSpeciesStr[mostSimilarIndex]);
                 }
             }
+        } else {
+            printMessage(stdout, InfoMessage, "(%s" "%d" RESET ") %s\n", selection < pkmnSpeciesCount ? LGREEN : LRED, selection, selection < pkmnSpeciesCount ? pkmnSpeciesStr[selection] : LRED "[INVALID]" RESET);
         }
 
-        if (checkPkmnInSosMail(selection, 1) == NoError) {
+        errorCode = checkPokemon(selection, SosMailType);
+        if (errorCode == NoError || errorCode == PokemonNotAllowedError) {
             break; /* input is ok */
+        } else if (errorCode == PokemonOutOfRangeError) {
+            printMessage(stderr, ErrorMessage, "Pokemon must be between " LGREEN "1" RESET " [" LGREEN "%s" RESET "] and " LGREEN "%d" RESET " [" LGREEN "%s" RESET "]. Current value: " LRED "%u" RESET " [" LRED "INVALID" RESET "]\n\n", pkmnSpeciesStr[1], pkmnSpeciesCount - 1, pkmnSpeciesStr[pkmnSpeciesCount - 1], selection);
         }
     } /* forever */
     sos->pkmnToRescue = selection;
 
     /* nickname */
     forever {
-        if (requestAndValidateStringInput(stringInput, 10, 1, pkmnSpeciesStr[sos->pkmnToRescue], LIGHT "Enter the " LGREEN "nickname" RESET LIGHT " of that pokemon (leave it blank for none).\n" RESET) == NoError) {
+        if (requestAndValidateStringInput(stringInput, 10, 1, pkmnSpeciesStr[sos->pkmnToRescue], LIGHT "Enter the " LGREEN "nickname" RESET LIGHT " of that pokemon (leave it blank for no nickname).\n" RESET) == NoError) {
             break;
         }        
     } /* forever */
@@ -578,7 +628,7 @@ int requestAndParseSosMailData(struct SosMail *sos)
     forever {
         do {
             randomHolder = rand() % dungeonsCount;
-        } while (checkDungeonInSosMail(randomHolder, 0) != NoError);
+        } while (checkDungeon(randomHolder, SosMailType) != NoError);
         if (requestAndValidateStringInput(stringInput, 100, 1, dungeonsStr[randomHolder], LIGHT "Enter the name or room index of the " LGREEN "dungeon" RESET LIGHT " (leave it blank for random).\n" RESET) != NoError) {
             continue;
         }
@@ -588,33 +638,44 @@ int requestAndParseSosMailData(struct SosMail *sos)
             for (i = 0; i < dungeonsCount; ++i) {
                 if (strcmp(dungeonsStr[i], stringInput) == 0) {
                     selection = i;
-                    break; /* item found */
+                    break; /* dungeon found */
                 }
             }
 
             if (selection == dungeonsCount) {
                 mostSimilarIndex = findMostSimilarStringInArray(stringInput, dungeonsStr, dungeonsCount);
                 if (mostSimilarIndex == -1) {
-                    fprintf(stderr, LRED "ERROR:" RESET LIGHT " Cannot find dungeon " LGREEN "\"%s\"" RESET LIGHT " in the database.\n", stringInput);
-                    fputs("Re-check your spelling.\n" RESET, stderr);
+                    printMessage(stderr, ErrorMessage, "Cannot find dungeon " LRED "\"%s\"" RESET LIGHT " in the database.\n", stringInput);
                     continue;
                 } else {
                     selection = mostSimilarIndex;
-                    fprintf(stderr, LGREEN "%s" RESET LIGHT " has been assumed.\n" RESET, dungeonsStr[mostSimilarIndex]);
+                    printMessage(stderr, InfoMessage, LGREEN "%s" RESET " has been assumed.\n", dungeonsStr[mostSimilarIndex]);
                 }
             }
+        } else {
+            printMessage(stdout, InfoMessage, "(%s" "%d" RESET ") %s\n", selection < dungeonsCount ? LGREEN : LRED, selection, selection < dungeonsCount ? dungeonsStr[selection] : LRED "[INVALID]" RESET);
         }
 
-        if (checkDungeonInWonderMail(selection, 1) == NoError) {
+        errorCode = checkDungeon(selection, SosMailType);
+        if (errorCode == NoError) {
             break; /* input is ok */
+        } else if (errorCode == DungeonOutOfRangeError) {
+            printMessage(stderr, ErrorMessage, "The dungeon must be between " LGREEN "0" RESET " [" LGREEN "%s" RESET "] and " LGREEN "%d" RESET " [" LGREEN "%s" RESET "]. Current value: " LRED "%u" RESET " [" LGREEN "INVALID" RESET "]\n\n", dungeonsStr[0], dungeonsCount - 1, dungeonsStr[dungeonsCount - 1], selection);
+        } else if (errorCode == DungeonIsInvalidError) {
+            printMessage(stderr, ErrorMessage, "The dungeon " LRED "%u" RESET " [" LRED "INVALID" RESET "] is not a valid dungeon.\n\n", selection);
         }
     } /* forever */
     sos->dungeon = selection;
 
     /* floor */
     forever {
-        if (requestAndValidateIntegerInput(&selection, 1, 1 + rand() % difficulties[sos->dungeon][0], LIGHT "Enter the " LGREEN "floor" RESET LIGHT " (leave it blank for random).\n" RESET) == NoError && checkFloorForDungeon(selection, sos->dungeon, 1) == NoError) {
-            break; /* input is ok */
+        if (requestAndValidateIntegerInput(&selection, 1, 1 + rand() % difficulties[sos->dungeon][0], LIGHT "Enter the " LGREEN "floor" RESET LIGHT " (leave it blank for random).\n" RESET) == NoError) {
+            errorCode = checkFloor(selection, sos->dungeon);
+            if (errorCode == NoError) {
+                break; /* input is ok */
+            } else if (errorCode == FloorOutOfRangeError) {
+                printMessage(stderr, ErrorMessage, "The dungeon " LIGHT "%u" LIGHT " [" LIGHT "%s" LIGHT "] has floors in the range " LGREEN "1" RESET "-" LGREEN "%d" RESET " floors. Current value: " LRED "%u" RESET "\n\n", sos->dungeon, sos->dungeon < dungeonsCount ? dungeonsStr[sos->dungeon] : "INVALID", difficulties[sos->dungeon][0], selection);
+            }
         }
     }
     sos->floor = selection;
@@ -622,7 +683,7 @@ int requestAndParseSosMailData(struct SosMail *sos)
     /* reward item */
     if (sos->mailType == ThankYouMailType) {
         forever {
-            randomHolder = 1 + rand() % (itemsCount - 1);
+            randomHolder = 1 + rand() % (itemsCount - 6);
             if (requestAndValidateStringInput(stringInput, 100, 1, itemsStr[randomHolder], LIGHT "Enter the name or room index of the " LGREEN "reward item" RESET LIGHT " (type \"" LGREEN "0" RESET LIGHT "\" or \"" LGREEN "Nothing" RESET LIGHT "\" for no reward, or leave it blank for random).\n" RESET) != NoError) {
                 continue;
             }
@@ -639,40 +700,55 @@ int requestAndParseSosMailData(struct SosMail *sos)
                 if (selection == itemsCount) {
                     mostSimilarIndex = findMostSimilarStringInArray(stringInput, itemsStr, itemsCount);
                     if (mostSimilarIndex == -1) {
-                        fprintf(stderr, LRED "ERROR:" RESET LIGHT " Cannot find item " LGREEN "\"%s\"" RESET LIGHT " in the database.\n", stringInput);
-                        fputs("Re-check your spelling.\n" RESET, stderr);
+                        printMessage(stderr, ErrorMessage, "Cannot find item " LRED "\"%s\"" RESET " in the database.\n", stringInput);
                         continue;
                     } else {
                         selection = mostSimilarIndex;
-                        fprintf(stderr, LGREEN "%s" RESET LIGHT " has been assumed.\n" RESET, itemsStr[mostSimilarIndex]);
+                        printMessage(stderr, InfoMessage, LGREEN "%s" RESET " has been assumed.\n", itemsStr[mostSimilarIndex]);
                     }
                 }
+            } else {
+                printMessage(stdout, InfoMessage, "(%s" "%d" RESET ") %s\n", selection < itemsCount ? LGREEN : LRED, selection, selection < itemsCount ? itemsStr[selection] : LRED "[INVALID]" RESET);
             }
 
-            if (selection == 0 || checkItemRange(selection, 1) == NoError) {
+            errorCode = checkItem(selection);
+            if (errorCode == NoError || errorCode == NoItemError) {
                 break; /* input is ok */
+            } else if (errorCode == ItemCannotBeObtainedError) {
+                printMessage(stderr, ErrorMessage, "Item " LRED "%d" RESET " [" LRED "%s" RESET "] cannot be obtained as reward.\n\n", selection, itemsStr[selection]);
+            } else if (errorCode == ItemOutOfRangeError) {
+                printMessage(stderr, ErrorMessage, "Items to find or deliver must be numbers between " LGREEN "1" RESET " [" LGREEN "%s" RESET "] and " LGREEN "%d" RESET " [" LGREEN "%s" RESET "]. Current value: %u [INVALID]\n\n", itemsStr[1], itemsCount - 5, itemsStr[itemsCount - 5], selection);
             }
         } /* forever */
         sos->itemReward = selection;
     } else {
-        sos->itemReward = rand() % itemsCount; /* ignored if not thank-u mail */
+        sos->itemReward = 1 + rand() % (itemsCount - 6); /* ignored if not thank-u mail */
     }
 
     /* mail ID */
     forever {
-        if (requestAndValidateIntegerInput(&selection, 1, rand() % 10000, LIGHT "Enter the " LGREEN "Mail ID" RESET LIGHT " (0 to 9999, leave it blank for random).\n" RESET) == NoError && checkMailID(selection, 0) == NoError) {
-            break; /* input is ok */
+        if (requestAndValidateIntegerInput(&selection, 1, rand() % 10000, LIGHT "Enter the " LGREEN "Mail ID" RESET LIGHT " (0 to 9999, leave it blank for random).\n" RESET) == NoError) {
+            if (checkMailID(selection) == NoError) {
+                break; /* input is ok */
+            } else {
+                printMessage(stderr, ErrorMessage, LRED "%d" RESET " is out of range.\n", selection);
+            }
         }
     }
     sos->mailID = selection;
 
     /* Chances left */
-    unsigned int minChancesLeft = sos->mailType == SosMailType ? 1  : 0;
-    unsigned int maxChancesLeft = sos->mailType == SosMailType ? 10 : 9;
+    unsigned int minChancesLeft = sos->mailType == SosMailType ?   1 :  0;
+    unsigned int maxChancesLeft = sos->mailType == SosMailType ? 100 : 99;
     forever {
         fprintf(stdout, LIGHT "Enter the number of " LGREEN "chances left" RESET LIGHT " (%d to %d, leave it blank for %d).\n" RESET, minChancesLeft, maxChancesLeft, maxChancesLeft);
         if (requestAndValidateIntegerInput(&selection, 1, maxChancesLeft, "") == NoError && selection >= minChancesLeft && selection <= maxChancesLeft) {
-            break; /* input is ok */
+            if (selection >= minChancesLeft && selection <= maxChancesLeft) {
+                break; /* input is ok */
+            } else {
+                printMessage(stderr, ErrorMessage, LRED "%d" RESET " is out of range.\n", selection);
+            }
+            
         }
     }
     sos->chancesLeft = selection;
@@ -690,13 +766,15 @@ int requestAndParseSOSMailConvertion(char *password, int *item)
 
     unsigned int i = 0;
     unsigned int selection = -1;
+    int errorCode = NoError;
     char stringInput[101];
     int randomHolder;
     char *stringEnd;
     int mostSimilarIndex = 0;
 
+    /* reward item */
     forever {
-        randomHolder = 1 + rand() % (itemsCount - 1);
+        randomHolder = 1 + rand() % (itemsCount - 6);
         if (requestAndValidateStringInput(stringInput, 100, 1, itemsStr[randomHolder], LIGHT "Enter the name or room index of the " LGREEN "reward item for the Thank-You mail" RESET LIGHT " (type \"" LGREEN "0" RESET LIGHT "\" or \"" LGREEN "Nothing" RESET LIGHT "\" for no reward, or leave it blank for random).\n" RESET) != NoError) {
             continue;
         }
@@ -713,18 +791,24 @@ int requestAndParseSOSMailConvertion(char *password, int *item)
             if (selection == itemsCount) {
                 mostSimilarIndex = findMostSimilarStringInArray(stringInput, itemsStr, itemsCount);
                 if (mostSimilarIndex == -1) {
-                    fprintf(stderr, LRED "ERROR:" RESET LIGHT " Cannot find item " LGREEN "\"%s\"" RESET LIGHT " in the database.\n", stringInput);
-                    fputs("Re-check your spelling.\n" RESET, stderr);
+                    printMessage(stderr, ErrorMessage, "Cannot find item " LRED "\"%s\"" RESET " in the database.\n", stringInput);
                     continue;
                 } else {
                     selection = mostSimilarIndex;
-                    fprintf(stderr, LGREEN "%s" RESET LIGHT " has been assumed.\n" RESET, itemsStr[mostSimilarIndex]);
+                    printMessage(stderr, InfoMessage, LGREEN "%s" RESET " has been assumed.\n", itemsStr[mostSimilarIndex]);
                 }
             }
+        } else {
+            printMessage(stdout, InfoMessage, "(%s" "%d" RESET ") %s\n", selection < itemsCount ? LGREEN : LRED, selection, selection < itemsCount ? itemsStr[selection] : LRED "[INVALID]" RESET);
         }
 
-        if (selection == 0 || checkItemRange(selection, 1) == NoError) {
+        errorCode = checkItem(selection);
+        if (errorCode == NoError || errorCode == NoItemError) {
             break; /* input is ok */
+        } else if (errorCode == ItemCannotBeObtainedError) {
+            printMessage(stderr, ErrorMessage, "Item " LRED "%d" RESET " [" LRED "%s" RESET "] cannot be obtained as reward.\n\n", selection, itemsStr[selection]);
+        } else if (errorCode == ItemOutOfRangeError) {
+            printMessage(stderr, ErrorMessage, "Items to find or deliver must be numbers between " LGREEN "1" RESET " [" LGREEN "%s" RESET "] and " LGREEN "%d" RESET " [" LGREEN "%s" RESET "]. Current value: %u [INVALID]\n\n", itemsStr[1], itemsCount - 5, itemsStr[itemsCount - 5], selection);
         }
     } /* forever */
     *item = selection;
@@ -1092,176 +1176,6 @@ void printSOSDataToFile(const struct SosMailInfo *mailInfo, enum MailType mailTy
 
 
 
-int checkPkmnInWonderMail(int index, int printErrorMessages)
-{
-    /* pkmn check (limits) */
-    if (index <= 0 || (unsigned int)index >= pkmnSpeciesCount) {
-        if (printErrorMessages) {
-            fprintf(stderr, LRED "ERROR:" RESET LIGHT " Pkmn must be numbers between 1 and %d (not necessarily match pkdex numbers).\n"
-                            "       Current value: " LRED "%u" RESET LIGHT " [" LRED "INVALID" RESET LIGHT "]\n\n" RESET, pkmnSpeciesCount - 1, index);
-        }
-        return InputError;
-    }
-    /* pkmn check (legendaries) */
-    else if ( (index >= 144 && index <= 146) /* birds */ || (index >= 150 && index <= 151) /* mewtwo and mew */ ||
-              (index >= 201 && index <= 226) /* unown */ || (index >= 268 && index <= 270) /* dogs */ ||
-              (index >= 274 && index <= 276) /* lugia and ho-oh */ ||
-              (index >= 405 && index <= 414) /* regis, eons, kyogre, groudon, rayquaza, jirachi and deoxys */ ) {
-        if (printErrorMessages) {
-            fprintf(stderr, LRED "ERROR:" RESET LIGHT " Legendaries are not valid values.\n"
-                            "       Current value: " LRED "%u" RESET LIGHT " [" LRED "%s" RESET LIGHT "]\n\n" RESET, index, pkmnSpeciesStr[index]);
-        }
-        return InputError;
-    }
-
-    return NoError;
-}
-
-
-
-int checkPkmnInSosMail(int index, int printErrorMessages)
-{
-    /* pkmn check (limits) */
-    if (index <= 0 || (unsigned int)index >= pkmnSpeciesCount) {
-        if (printErrorMessages) {
-            fprintf(stderr, LRED "ERROR:" RESET LIGHT " Pkmn must be numbers between 1 and %d (not necessarily match pkdex numbers).\n"
-                            "       Current value: " LRED "%u" RESET LIGHT " [" LRED "INVALID" RESET LIGHT "]\n\n" RESET, pkmnSpeciesCount - 1, index);
-        }
-        return InputError;
-    }
-
-    return NoError;
-}
-
-
-
-int checkDungeonInWonderMail(int index, int printErrorMessages)
-{
-    /* dungeon check */
-    if (index < 0 || (unsigned int)index >= dungeonsCount) {
-        if (printErrorMessages) {
-            fprintf(stderr, LRED "ERROR:" RESET LIGHT " Dungeons must be numbers between 1 and %d.\n"
-                            "       Current value: " LRED "%u" RESET LIGHT " [" LRED "INVALID" RESET LIGHT "]\n\n" RESET, dungeonsCount - 1, index);
-        }
-        return InputError;
-    } else if (strcmp(dungeonsStr[index], "[INVALID]") == 0) {
-        if (printErrorMessages) {
-            fprintf(stderr, LRED "ERROR:" RESET LIGHT " The dungeon with index " LRED "%u" RESET " isn't a valid dungeon.\n", index);
-        }
-        return InputError;
-    }
-
-    return NoError;
-}
-
-
-
-int checkDungeonInSosMail(int index, int printErrorMessages)
-{
-    /* it's actually the same checking for all kinds of mails */
-    return checkDungeonInWonderMail(index, printErrorMessages);
-}
-
-
-
-int checkFloorForDungeon(int floor, int dungeonIndex, int printErrorMessages)
-{
-    /* floor check (floor 0) */
-    if (floor <= 0) {
-        if (printErrorMessages) {
-            fprintf(stderr, LRED "ERROR:" RESET LIGHT " Floor %d does not exists.\n", floor);
-        }
-        return InputError;
-    } else if (floor > difficulties[dungeonIndex][0]) { /* floor check (limit) */
-        if (printErrorMessages) {
-            fprintf(stderr, LRED "ERROR:" RESET LIGHT " The dungeon " LGREEN "%u" RESET LIGHT " [" LGREEN "%s" RESET LIGHT "] only has " LRED "%d" RESET LIGHT " floors. Your entry exceed that value.\n\n",
-                            dungeonIndex, dungeonsStr[dungeonIndex], difficulties[dungeonIndex][0]);
-        }
-        return InputError;
-    } else if (floor == forbiddenFloorsInDungeons[dungeonIndex][1] || floor == forbiddenFloorsInDungeons[dungeonIndex][2]) {
-        if (printErrorMessages) {
-            fprintf(stderr, LRED "ERROR:" RESET LIGHT " A mission cannot be made in floor " LGREEN "%u" RESET LIGHT " of dungeon %u [" LGREEN "%s" RESET LIGHT "].\n\n",
-                            floor, dungeonIndex, dungeonsStr[dungeonIndex]);
-            return InputError;
-        }
-    }
-
-    return NoError;
-}
-
-
-
-int checkItemToFindDeliverRangeInWonderMail(int index, int printErrorMessages)
-{
-    /* item check (limits) */
-    if (index < 1 || (unsigned int)index > (itemsCount - 8)) { /* the last 7 are not valid */
-        if (printErrorMessages) {
-            fprintf(stderr, LRED "ERROR:" RESET LIGHT " Items must be numbers between 1 and %d.\n"
-                            "       Current value: " LRED "%u" RESET LIGHT " [" LRED "INVALID" RESET LIGHT "]\n\n" RESET, (itemsCount - 9), index);
-        }
-        return InputError;
-    }
-
-    return NoError;
-}
-
-
-
-int checkItemToFindDeliverByDungeonInWonderMail(int itemIndex, int dungeonIndex, int printErrorMessages)
-{
-    /* item check (availability in dungeon) */
-    if (!findItemByDungeon(itemIndex, dungeonIndex)) {
-        if (printErrorMessages) {
-            fprintf(stderr, LRED "ERROR:" RESET LIGHT " The item " LGREEN "%u" RESET LIGHT " [" LGREEN "%s" RESET LIGHT "] can't be found in the dungeon " LGREEN "%u" RESET LIGHT " [" LGREEN "%s" RESET LIGHT "].\n"
-                            "      To accept a job about finding an item inside a dungeon, the item must exist on that dungeon.\n"
-                            "      The items that can be found in that dungeon are listed bellow:\n",
-                    itemIndex, (unsigned int)itemIndex < itemsCount ? itemsStr[itemIndex] : "[INVALID]", dungeonIndex, dungeonsStr[dungeonIndex]);
-            unsigned short i;
-            for (i = 1; i < itemsInDungeons[dungeonIndex][0]; ++i) {
-                fprintf(stderr, LGREEN "%u" RESET LIGHT " [" LGREEN "%s" RESET LIGHT "]\n" RESET, itemsInDungeons[dungeonIndex][i], itemsStr[itemsInDungeons[dungeonIndex][i]]);
-            }
-            fputc('\n', stderr);
-        }
-        return InputError;
-    }
-
-    return NoError;
-}
-
-
-
-int checkItemRange(int index, int printErrorMessages)
-{
-    /* item check (limits) */
-    if (index < 1 || (unsigned int)index >= itemsCount) {
-        if (printErrorMessages) {
-            fprintf(stderr, LRED "ERROR:" RESET LIGHT " Items must be numbers between 1 and %d.\n"
-                            "       Current value: " LRED "%u" RESET LIGHT " [" LRED "INVALID" RESET LIGHT "]\n\n" RESET, itemsCount - 1, index);
-        }
-        return InputError;
-    }
-
-    return NoError;
-}
-
-
-
-int checkMailID(int mailID, int printErrorMessages)
-{
-    /* item check (limits) */
-    if (mailID < 0 || mailID > 10000) {
-        if (printErrorMessages) {
-            fprintf(stderr, LRED "ERROR:" RESET LIGHT " The mail ID must be a non-negative number with no more than 4 digits (0 to 9999).\n"
-                            "       Current value: " LRED "%u" RESET "\n\n", mailID);
-        }
-        return InputError;
-    }
-
-    return NoError;
-}
-
-
-
 int requestAndValidateIntegerInput(unsigned int *n, int allowEmptyValue, int valueIfEmpty, const char* message)
 {
 #define MAX_LENGTH_INPUT 20
@@ -1286,7 +1200,7 @@ int requestAndValidateIntegerInput(unsigned int *n, int allowEmptyValue, int val
         errno = 0; /* strtol modifies `errno` if the input is too big to be stored in a `long int` */
         *n = (unsigned int)strtol(stringInput, &stringEnd, 10);
         if (*stringEnd || errno) {
-            fprintf(stderr, LRED "ERROR:" RESET LIGHT " Invalid input. %s.\n\n" RESET, errno ? strerror(errno) : "Only positive numbers are allowed");
+            printMessage(stderr, ErrorMessage, "Invalid input: %s.\n\n" RESET, errno ? strerror(errno) : "Only positive numbers are allowed");
             return InputError;
         }
         return NoError;
@@ -1307,7 +1221,7 @@ int requestAndValidateStringInput(char* str, unsigned int maxLength, int allowEm
     }
     strncpy(str, stringInput, maxLength);
     if (strlen(stringInput) > maxLength) {
-        fprintf(stderr, LYELLOW "WARNING:" RESET " The input (" LRED "%s" RESET ") is bigger than %d characters, so it has been truncated to " LGREEN "%s" RESET ".\n" LGREEN, stringInput, maxLength, str);
+        printMessage(stderr, WarningMessage, "The input (" LRED "%s" RESET ") is bigger than %d characters, so it has been truncated to " LGREEN "%s" RESET ".\n" LGREEN, stringInput, maxLength, str);
     }
     
     if (strlen(stringInput) == 0 && !allowEmptyValue) {

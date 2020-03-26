@@ -98,7 +98,7 @@ int encodeWM(int argc, const char *argv[])
         printWonderMailDataToFile(&wmInfo, f);
     }
     if (wm.dungeon == 10 || wm.dungeon == 12 || wm.dungeon == 14 || wm.dungeon == 16 || wm.dungeon == 18 || wm.dungeon == 22 || wm.dungeon == 47 || wm.dungeon == 48 || wm.dungeon == 52) {
-        fputs(LYELLOW "WARNING:" RESET " Due to the choosen dungeon, you will not be able to accept the above mission.\n\n", stderr);
+        printMessage(stderr, WarningMessage, "Due to the choosen dungeon, you will not be able to accept the above mission.\n\n");
         fputs("WARNING: Due to the choosen dungeon, you will not be able to accept the above mission.\n", f);
         fflush(stderr);
     }
@@ -116,15 +116,14 @@ int parseWMData(const char *argv[], struct WonderMail *wm)
 {
     unsigned int i;
     int mostSimilarIndex = 0;
+    char* stringEnd;
 
-    wm->mailType         = 5; /* Wonder Mail */
+    wm->mailType         = WonderMailType; /* Wonder Mail */
     wm->missionType      = (unsigned int)atoi(argv[1]);
 
     /* user can input the pkmns, items, dungeons and friend zones by using its name or its index */
-    
-    if (isdigit(argv[2][0])) {
-        wm->pkmnClient   = (unsigned int)atoi(argv[2]);
-    } else {
+    wm->pkmnClient = (unsigned int)strtol(argv[2], &stringEnd, 10);
+    if (*stringEnd) {
         wm->pkmnClient   = pkmnSpeciesCount; /* invalid name, invalid index */
         for (i = 0; i < pkmnSpeciesCount; ++i) {
             if (strcmp(pkmnSpeciesStr[i], argv[2]) == 0) {
@@ -133,19 +132,20 @@ int parseWMData(const char *argv[], struct WonderMail *wm)
             }
         }
         if (wm->pkmnClient == pkmnSpeciesCount) {
-            fprintf(stderr, "ERROR: Cannot find client pokemon \"%s\" in the database.\n", argv[2]);
             mostSimilarIndex = findMostSimilarStringInArray(argv[2], pkmnSpeciesStr, pkmnSpeciesCount);
             if (mostSimilarIndex == -1) {
-                fputs("Re-check your spelling.\n", stderr);
+                printMessage(stderr, ErrorMessage, "Cannot find pokemon " LRED "\"%s\"" RESET " in the database.\n", argv[2]);
+                return InputError;
             } else {
-                fprintf(stderr, "Do you mean \"%s\"?\n", pkmnSpeciesStr[mostSimilarIndex]);
+                wm->pkmnClient = mostSimilarIndex;
+                printMessage(stderr, InfoMessage, "Pokemon " LGREEN "%s" RESET " has been assumed.\n", pkmnSpeciesStr[mostSimilarIndex]);
             }
-            return InputError;
         }
     }
 
     if (wm->missionType == Find || wm->missionType == Escort) {
-        if (isdigit(argv[3][0])) {
+        wm->pkmnTarget = (unsigned int)strtol(argv[3], &stringEnd, 10);
+        if (*stringEnd) {
             wm->pkmnTarget   = (unsigned int)atoi(argv[3]);
         } else {
             wm->pkmnTarget   = pkmnSpeciesCount; /* invalid name, invalid index */
@@ -157,23 +157,22 @@ int parseWMData(const char *argv[], struct WonderMail *wm)
             }
         }
         if (wm->pkmnTarget == pkmnSpeciesCount) {
-            fprintf(stderr, "ERROR: Cannot find target pokemon \"%s\" in the database.\n", argv[3]);
             mostSimilarIndex = findMostSimilarStringInArray(argv[3], pkmnSpeciesStr, pkmnSpeciesCount);
             if (mostSimilarIndex == -1) {
-                fputs("Re-check your spelling.\n", stderr);
+                printMessage(stderr, ErrorMessage, "Cannot find pokemon " LRED "\"%s\"" RESET " in the database.\n", argv[3]);
+                return InputError;
             } else {
-                fprintf(stderr, "Do you mean \"%s\"?\n", pkmnSpeciesStr[mostSimilarIndex]);
+                wm->pkmnClient = mostSimilarIndex;
+                printMessage(stderr, InfoMessage, "Pokemon " LGREEN "%s" RESET " has been assumed.\n", pkmnSpeciesStr[mostSimilarIndex]);
             }
-            return InputError;
         }
     } else {
         wm->pkmnTarget   = wm->pkmnClient;
     }
 
     if (wm->missionType == FindItem || wm->missionType == DeliverItem) {
-        if (isdigit(argv[4][0])) {
-            wm->itemDeliverFind   = (unsigned int)atoi(argv[4]);
-        } else {
+        wm->itemDeliverFind = (unsigned int)strtol(argv[4], &stringEnd, 10);
+        if (*stringEnd) {
             wm->itemDeliverFind   = itemsCount; /* invalid name, invalid index */
             for (i = 0; i < itemsCount; ++i) {
                 if (strcmp(itemsStr[i], argv[4]) == 0) {
@@ -182,23 +181,22 @@ int parseWMData(const char *argv[], struct WonderMail *wm)
                 }
             }
             if (wm->itemDeliverFind == itemsCount) {
-                fprintf(stderr, "ERROR: Cannot find item to %s \"%s\" in the database.\n", wm->missionType == FindItem ? "find" : "deliver", argv[4]);
                 mostSimilarIndex = findMostSimilarStringInArray(argv[4], itemsStr, itemsCount);
                 if (mostSimilarIndex == -1) {
-                    fputs("Re-check your spelling.\n", stderr);
+                    printMessage(stderr, ErrorMessage, "Cannot find item " LRED "\"%s\"" RESET LIGHT " in the database.\n", argv[4]);
+                    return InputError;
                 } else {
-                    fprintf(stderr, "Do you mean \"%s\"?\n", itemsStr[mostSimilarIndex]);
+                    wm->itemDeliverFind = mostSimilarIndex;
+                    printMessage(stderr, InfoMessage, "Item " LGREEN "%s" RESET " has been assumed.\n", dungeonsStr[mostSimilarIndex]);
                 }
-                return InputError;
             }
         }
     } else {
         wm->itemDeliverFind = 9;
     }
 
-    if (isdigit(argv[5][0])) {
-        wm->dungeon   = (unsigned int)atoi(argv[5]);
-    } else {
+    wm->dungeon = (unsigned int)strtol(argv[5], &stringEnd, 10);
+    if (*stringEnd) {
         wm->dungeon   = dungeonsCount; /* invalid name, invalid index */
         for (i = 0; i < dungeonsCount; ++i) {
             if (strcmp(dungeonsStr[i], argv[5]) == 0) {
@@ -207,23 +205,22 @@ int parseWMData(const char *argv[], struct WonderMail *wm)
             }
         }
         if (wm->dungeon == dungeonsCount) {
-            fprintf(stderr, "ERROR: Cannot find dungeon \"%s\" in the database.\n", argv[5]);
             mostSimilarIndex = findMostSimilarStringInArray(argv[5], dungeonsStr, dungeonsCount);
             if (mostSimilarIndex == -1) {
-                fputs("Re-check your spelling.\n", stderr);
+                printMessage(stderr, ErrorMessage, "Cannot find dungeon " LRED "\"%s\"" RESET LIGHT " in the database.\n", argv[5]);
+                return InputError;
             } else {
-                fprintf(stderr, "Do you mean \"%s\"?\n", dungeonsStr[mostSimilarIndex]);
+                wm->dungeon = mostSimilarIndex;
+                printMessage(stderr, InfoMessage, "Dungeon " LGREEN "%s" RESET " has been assumed.\n", dungeonsStr[mostSimilarIndex]);
             }
-            return InputError;
         }
     }
 
     wm->floor            = (unsigned int)atoi(argv[6]);
     wm->rewardType       = (unsigned int)atoi(argv[7]);
 
-    if (isdigit(argv[8][0])) {
-        wm->itemReward   = (unsigned int)atoi(argv[8]);
-    } else {
+    wm->itemReward = (unsigned int)strtol(argv[8], &stringEnd, 10);
+    if (*stringEnd) {
         wm->itemReward   = itemsCount; /* invalid name, invalid index */
         for (i = 0; i < itemsCount; ++i) {
             if (strcmp(itemsStr[i], argv[8]) == 0) {
@@ -232,21 +229,20 @@ int parseWMData(const char *argv[], struct WonderMail *wm)
             }
         }
         if (wm->itemReward == itemsCount) {
-            fprintf(stderr, "ERROR: Cannot find reward item \"%s\" in the database.\n", argv[8]);
             mostSimilarIndex = findMostSimilarStringInArray(argv[8], itemsStr, itemsCount);
             if (mostSimilarIndex == -1) {
-                fputs("Re-check your spelling.\n", stderr);
+                printMessage(stderr, ErrorMessage, "Cannot find item " LRED "\"%s\"" RESET " in the database.\n", argv[8]);
+                return InputError;
             } else {
-                fprintf(stderr, "Do you mean \"%s\"?\n", itemsStr[mostSimilarIndex]);
+                wm->itemReward = mostSimilarIndex;
+                printMessage(stderr, InfoMessage, "Item " LGREEN "%s" RESET " has been assumed.\n", itemsStr[mostSimilarIndex]);
             }
-            return InputError;
         }
     }
 
-    if (wm->rewardType == 9) {
-        if (isdigit(argv[9][0])) {
-            wm->friendAreaReward   = (unsigned int)atoi(argv[9]);
-        } else {
+    wm->itemReward = (unsigned int)strtol(argv[9], &stringEnd, 10);
+    if (wm->rewardType == FriendArea) {
+        if (*stringEnd) {
             wm->friendAreaReward   = friendAreasCount; /* invalid name, invalid index */
             for (i = 0; i < friendAreasCount; ++i) {
                 if (strcmp(friendAreasStr[i], argv[9]) == 0) {
@@ -255,15 +251,15 @@ int parseWMData(const char *argv[], struct WonderMail *wm)
                 }
             }
             if (wm->friendAreaReward == friendAreasCount) {
-                fprintf(stderr, "ERROR: Cannot find friend area \"%s\" in the database.\n", argv[9]);
                 mostSimilarIndex = findMostSimilarStringInArray(argv[9], friendAreasStr, friendAreasCount);
                 if (mostSimilarIndex == -1) {
-                    fputs("Re-check your spelling.\n", stderr);
-                } else {
-                    fprintf(stderr, "Do you mean \"%s\"?\n", friendAreasStr[mostSimilarIndex]);
-                }
+                    printMessage(stderr, ErrorMessage, "Cannot find friend area " LRED "\"%s\"" RESET " in the database.\n", argv[9]);
                     return InputError;
+                } else {
+                    wm->friendAreaReward = mostSimilarIndex;
+                    printMessage(stderr, InfoMessage, "Friend area " LGREEN "%s" RESET " has been assumed.\n", friendAreasStr[mostSimilarIndex]);
                 }
+            }
         }
     } else {
         wm->friendAreaReward = 0;
@@ -372,17 +368,64 @@ int encodeSOSM(int argc, const char *argv[])
 
 int parseSOSData(const char *argv[], struct SosMail *sos)
 {
+    unsigned int i;
+    int mostSimilarIndex = 0;
+    char* stringEnd;
+
     int hold = (unsigned int)atoi(argv[1]);
-    sos->mailType = hold == 0 ? SosMailType : (hold == 1) ? AOkMailType : (hold == 2) ? ThankYouMailType : InvalidMailType;
-    sos->pkmnToRescue = (unsigned int)atoi(argv[2]);
-    sos->dungeon = (unsigned int)atoi(argv[4]);
+    sos->mailType = hold == 0 ? SosMailType : (hold == 1) ? AOkMailType : (hold == 2) ? ThankYouMailType : hold;
+    
+    /* user can input the pkmns, items, dungeons and friend zones by using its name or its index */
+    sos->pkmnToRescue = (unsigned int)strtol(argv[2], &stringEnd, 10);
+    if (*stringEnd) {
+        sos->pkmnToRescue   = pkmnSpeciesCount; /* invalid name, invalid index */
+        for (i = 0; i < pkmnSpeciesCount; ++i) {
+            if (strcmp(pkmnSpeciesStr[i], argv[2]) == 0) {
+                sos->pkmnToRescue = i;
+                break;
+            }
+        }
+        if (sos->pkmnToRescue == pkmnSpeciesCount) {
+            mostSimilarIndex = findMostSimilarStringInArray(argv[2], pkmnSpeciesStr, pkmnSpeciesCount);
+            if (mostSimilarIndex == -1) {
+                printMessage(stderr, ErrorMessage, "Cannot find pokemon " LRED "\"%s\"" RESET " in the database.\n", argv[2]);
+                return InputError;
+            } else {
+                sos->pkmnToRescue = mostSimilarIndex;
+                printMessage(stderr, InfoMessage, LGREEN "%s" RESET " has been assumed.\n", pkmnSpeciesStr[mostSimilarIndex]);
+            }
+        }
+    }
+    
+    sos->dungeon = (unsigned int)strtol(argv[4], &stringEnd, 10);
+    if (*stringEnd) {
+        sos->dungeon   = dungeonsCount; /* invalid name, invalid index */
+        for (i = 0; i < dungeonsCount; ++i) {
+            if (strcmp(dungeonsStr[i], argv[4]) == 0) {
+                sos->dungeon = i;
+                break;
+            }
+        }
+        if (sos->dungeon == dungeonsCount) {
+            mostSimilarIndex = findMostSimilarStringInArray(argv[4], dungeonsStr, dungeonsCount);
+            if (mostSimilarIndex == -1) {
+                printMessage(stderr, ErrorMessage, "Cannot find dungeon " LRED "\"%s\"" RESET LIGHT " in the database.\n", argv[4]);
+                return InputError;
+            } else {
+                sos->dungeon = mostSimilarIndex;
+                printMessage(stderr, InfoMessage, "Dungeon " LGREEN "%s" RESET " has been assumed.\n", dungeonsStr[mostSimilarIndex]);
+            }
+        }
+    }
+    
+    
     sos->floor = (unsigned int)atoi(argv[5]);
     sos->mailID = (unsigned int)atoi(argv[6]);
     sos->chancesLeft = (unsigned int)atoi(argv[7]);
-    if (strlen(argv[3])) {
+    if (strlen(argv[3]) > 0) {
         strncpy(sos->pkmnNick, argv[3], 10);
     } else {
-        sos->pkmnNick[0] = '\0';
+        strncpy(sos->pkmnNick, sos->pkmnToRescue >= pkmnSpeciesCount ? "" : pkmnSpeciesStr[sos->pkmnToRescue], 10);
     }
 
     return NoError;
@@ -438,7 +481,7 @@ int convertSOS(int argc, const char *argv[])
 
         if (argc > 1 && i + 1 >= argc) {
             itemReward = 0;
-            fprintf(stdout, LIGHT "Reward item not specified. Default to " LGREEN "\"%s\"" RESET LIGHT ".\n", itemsStr[itemReward]);
+            printMessage(stderr, WarningMessage, "Reward item not specified. Default to " LGREEN "\"%s\"" RESET LIGHT ".\n", itemsStr[itemReward]);
         } else if (argc > 1) {
             itemReward = strtol(argv[i + 1], &stringEnd, 10);
             if (*stringEnd) { /* non-digit found */
@@ -451,21 +494,28 @@ int convertSOS(int argc, const char *argv[])
                 }
 
                 if ((unsigned int)itemReward == itemsCount) {
-                    fprintf(stderr, LRED "ERROR:" RESET LIGHT " Cannot find item " LGREEN "\"%s\"" RESET LIGHT " in the database.\n" RESET, argv[i + 1]);
+                    printMessage(stderr, ErrorMessage, "Cannot find item " LRED "\"%s\"" RESET " in the database.\n", argv[i + 1]);
                     mostSimilarIndex = findMostSimilarStringInArray(argv[i + 1], itemsStr, itemsCount);
                     itemReward = mostSimilarIndex == -1 ? 0 : mostSimilarIndex;
-                    fprintf(stderr, LGREEN "\"%s\"" RESET LIGHT " has been assumed.\n" RESET, itemsStr[itemReward]);
+                    printMessage(stderr, InfoMessage, LGREEN "%s" RESET " has been assumed.\n", itemsStr[itemReward]);
                 }
-            } else if (itemReward != 0 && checkItemRange(itemReward, 1) != NoError) {
+            } else {
+                printMessage(stdout, InfoMessage, "(%s" "%d" RESET ") %s\n", (unsigned int)itemReward < itemsCount ? LGREEN : LRED, (unsigned int)itemReward, (unsigned int)itemReward < itemsCount ? itemsStr[(unsigned int)itemReward] : LRED "[INVALID]" RESET);
+            }
+
+            errorCode = checkItem(itemReward);
+            if (errorCode == ItemCannotBeObtainedError) {
+                printMessage(stderr, ErrorMessage, "Item " LRED "%d" RESET " [" LRED "%s" RESET "] cannot be obtained as reward.\n\n", itemReward, itemsStr[itemReward]);
+                continue;
+            } else if (errorCode == ItemOutOfRangeError) {
+                printMessage(stderr, ErrorMessage, "Items to find or deliver must be numbers between " LGREEN "1" RESET " [" LGREEN "%s" RESET "] and " LGREEN "%d" RESET " [" LGREEN "%s" RESET "]. Current value: %u [INVALID]\n\n", itemsStr[1], itemsCount - 5, itemsStr[itemsCount - 5], itemReward);
                 continue;
             }
-        } else {
-            fprintf(stdout, RESET "(%s" "%d" RESET ") %s\n", (unsigned int)itemReward < itemsCount ? LGREEN : LRED, itemReward, (unsigned int)itemReward < itemsCount ? itemsStr[itemReward] : LRED "[INVALID]" RESET);
         }
 
-        errorCode = convertSosMail(SOSPassword, itemReward, AOKPassword, ThankYouPassword);
+        errorCode = convertSosMail(SOSPassword, 0, itemReward, AOKPassword, ThankYouPassword);
         if (errorCode) {
-            fprintf(stderr, RESET "Convertion error %d\n", errorCode);
+            printMessage(stderr, ErrorMessage, "Conversion error.\n");
             continue;
         }
 
@@ -538,11 +588,19 @@ int convertSOS(int argc, const char *argv[])
 
 int generateMassiveItemMissions(int dungeon, int item, int amount)
 {
-    int errorCode = checkDungeonInWonderMail(dungeon, 1);
-    if (errorCode != NoError) {
-        return NoError;
-    } else if (amount > (difficulties[dungeon][0] - forbiddenFloorsInDungeons[dungeon][0])) {
-        fprintf(stderr, LYELLOW "WARNING:" RESET LIGHT " No enough floors. Truncated to %d.\n", difficulties[dungeon][0] - forbiddenFloorsInDungeons[dungeon][0]);
+    int errorCode = checkDungeon(dungeon, SosMailType);
+    if (errorCode == DungeonOutOfRangeError) {
+        printMessage(stderr, ErrorMessage, "The dungeon must be between " LGREEN "0" RESET " [" LGREEN "%s" RESET "] and " LGREEN "%d" RESET " [" LGREEN "%s" RESET "]. Current value: " LRED "%u" RESET " [" LGREEN "INVALID" RESET "]\n\n", dungeonsStr[0], dungeonsCount - 1, dungeonsStr[dungeonsCount - 1], dungeon);
+        return errorCode;
+    } else if (errorCode == DungeonIsInvalidError) {
+        printMessage(stderr, ErrorMessage, "The dungeon " LRED "%u" RESET " [" LRED "INVALID" RESET "] is not a valid dungeon.\n\n", dungeon);
+        return errorCode;
+    } else if (errorCode == MissionCannotBeAcceptedInDungeonError) {
+        printMessage(stderr, WarningMessage, "A mission in dungeon " LYELLOW "%u" RESET " [" LYELLOW "%s" RESET "] can be generated, but cannot be done.\n\n", dungeon, (unsigned int)dungeon < dungeonsCount ? dungeonsStr[dungeon] : "INVALID");
+    } 
+    
+    if (amount > (difficulties[dungeon][0] - forbiddenFloorsInDungeons[dungeon][0])) {
+        printMessage(stderr, WarningMessage, "No enough floors. Amount truncated to " LGREEN "%d" RESET ".\n", difficulties[dungeon][0] - forbiddenFloorsInDungeons[dungeon][0]);
         amount = difficulties[dungeon][0] - forbiddenFloorsInDungeons[dungeon][0];
     }
 
@@ -555,11 +613,11 @@ int generateMassiveItemMissions(int dungeon, int item, int amount)
     char *timeStr = NULL;
     for (i = 0; i < amount; ++i) {
         wm.floor = i + 1;
-        while (checkFloorForDungeon(wm.floor, wm.dungeon, 0) != NoError) {
+        while (checkFloor(wm.floor, wm.dungeon) != NoError) {
             wm.floor++;
         }
-        while (checkPkmnInWonderMail(wm.pkmnClient, 0)) {
-            wm.pkmnClient = rand() % pkmnSpeciesCount;
+        while (checkPokemon(wm.pkmnClient, WonderMailType) != NoError) {
+            wm.pkmnClient = 1 + rand() % (pkmnSpeciesCount - 11);
         }
         wm.pkmnTarget = wm.pkmnClient;
         encodeWonderMail(&wm, password, 1);
@@ -589,11 +647,19 @@ int generateMassiveItemMissions(int dungeon, int item, int amount)
 
 int generateMassiveHighRankMissions(int dungeon, int item, int amount)
 {
-    int errorCode = checkDungeonInWonderMail(dungeon, 1);
-    if (errorCode != NoError) {
-        return NoError;
-    } else if (amount > (difficulties[dungeon][0] - forbiddenFloorsInDungeons[dungeon][0])) {
-        fprintf(stderr, LYELLOW "WARNING:" RESET LIGHT " No enough floors. Truncated to %d.\n", difficulties[dungeon][0] - forbiddenFloorsInDungeons[dungeon][0]);
+    int errorCode = checkDungeon(dungeon, SosMailType);
+    if (errorCode == DungeonOutOfRangeError) {
+        printMessage(stderr, ErrorMessage, "The dungeon must be between " LGREEN "0" RESET " [" LGREEN "%s" RESET "] and " LGREEN "%d" RESET " [" LGREEN "%s" RESET "]. Current value: " LRED "%u" RESET " [" LGREEN "INVALID" RESET "]\n\n", dungeonsStr[0], dungeonsCount - 1, dungeonsStr[dungeonsCount - 1], dungeon);
+        return errorCode;
+    } else if (errorCode == DungeonIsInvalidError) {
+        printMessage(stderr, ErrorMessage, "The dungeon " LRED "%u" RESET " [" LRED "INVALID" RESET "] is not a valid dungeon.\n\n", dungeon);
+        return errorCode;
+    } else if (errorCode == MissionCannotBeAcceptedInDungeonError) {
+        printMessage(stderr, WarningMessage, "A mission in dungeon " LYELLOW "%u" RESET " [" LYELLOW "%s" RESET "] can be generated, but cannot be done.\n\n", dungeon, (unsigned int)dungeon < dungeonsCount ? dungeonsStr[dungeon] : "INVALID");
+    }
+    
+    if (amount > (difficulties[dungeon][0] - forbiddenFloorsInDungeons[dungeon][0])) {
+        printMessage(stderr, WarningMessage, "No enough floors. Truncated to " LGREEN "%d" RESET ".\n", difficulties[dungeon][0] - forbiddenFloorsInDungeons[dungeon][0]);
         amount = difficulties[dungeon][0] - forbiddenFloorsInDungeons[dungeon][0];
     }
 
@@ -617,7 +683,7 @@ int generateMassiveHighRankMissions(int dungeon, int item, int amount)
         } else if (i == difficulties[dungeon][0] && targetRank > 1) {
             calculatedDiffChar = difficultiesChars[(targetRank >> 1) > 6 ? 6 : (targetRank >> 1)];
             strcpy(diffColor, calculatedDiffChar == 'E' ? RESET : calculatedDiffChar == 'D' || calculatedDiffChar == 'C' ? COLOR_GREEN : calculatedDiffChar == 'B' || calculatedDiffChar == 'A' ? COLOR_CYAN : calculatedDiffChar == 'S' ? COLOR_RED : LYELLOW);
-            fprintf(stderr, LYELLOW "WARNING:" RESET LIGHT " The dungeon " LGREEN "%u" RESET LIGHT " [" LGREEN "%s" RESET LIGHT "] cannot provide %s%c" RESET LIGHT " rank missions.\n", dungeon, ((unsigned int)dungeon >= dungeonsCount) ? "INVALID" : dungeonsStr[dungeon], diffColor, calculatedDiffChar);
+            printMessage(stderr, WarningMessage, "The dungeon " LGREEN "%u" RESET LIGHT " [" LGREEN "%s" RESET LIGHT "] cannot provide %s%c" RESET LIGHT " rank missions.\n", dungeon, ((unsigned int)dungeon >= dungeonsCount) ? "INVALID" : dungeonsStr[dungeon], diffColor, calculatedDiffChar);
             while (calculatedDiffChar == difficultiesChars[(targetRank >> 1) > 6 ? 6 : (targetRank >> 1)]) {
                 targetRank--; /* try again with a lower rank */
             }
@@ -632,11 +698,11 @@ int generateMassiveHighRankMissions(int dungeon, int item, int amount)
     int top = i + amount;
     for (; i < top; ++i) {
         wm.floor = i;
-        while (checkFloorForDungeon(wm.floor, wm.dungeon, 0) != NoError) {
+        while (checkFloor(wm.floor, wm.dungeon) != NoError) {
             wm.floor++;
         }
-        while (checkPkmnInWonderMail(wm.pkmnClient, 0)) {
-            wm.pkmnClient = rand() % pkmnSpeciesCount;
+        while (checkPokemon(wm.pkmnClient, WonderMailType)) {
+            wm.pkmnClient = 1 + rand() % (pkmnSpeciesCount - 11);
         }
         wm.pkmnTarget = wm.pkmnClient;
         encodeWonderMail(&wm, password, 1);
@@ -667,7 +733,7 @@ int generateMassiveHighRankMissions(int dungeon, int item, int amount)
 int unlockExclusivePokemon(enum GameType gameType)
 {
     if (gameType != RedRescueTeam && gameType != BlueRescueTeam) {
-        fprintf(stderr, LRED "ERROR:" RESET LIGHT " Unrecognized game type.\n");
+        printMessage(stderr, ErrorMessage, "Unrecognized game type.\n");
         return InputError;
     }
     int pokemonRedRescueTeam[]  = { 137, 251, 336, 340, 374 }; /* Porygon, Mantine, Plusle, Roselia and Feebas */
@@ -725,8 +791,8 @@ int unlockDungeons()
     int i;
     for (i = 0; i < 3; ++i) {
         wm.dungeon = dungeonsToUnlock[i];
-        while (checkPkmnInWonderMail(wm.pkmnClient, 0)) {
-            wm.pkmnClient = rand() % pkmnSpeciesCount;
+        while (checkPokemon(wm.pkmnClient, WonderMailType)) {
+            wm.pkmnClient = 1 + rand() % (pkmnSpeciesCount - 11);
         }
         wm.pkmnTarget = wm.pkmnClient;
         encodeWonderMail(&wm, password, 1);
