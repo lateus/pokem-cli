@@ -64,8 +64,9 @@ int main(int argc, const char *argv[])
 
     /* A seed to generate random numbers */
     srand((unsigned int)time(NULL));
-
+    fprintf(stderr, "1\n");
     autodetectResult = autodetect(argc, argv);
+    fprintf(stderr, "2\n");
     if (autodetectResult == -1) {
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
         (void)result;
@@ -135,9 +136,9 @@ int main(int argc, const char *argv[])
 
 int autodetect(int argc, const char *argv[])
 {
-
-    size_t lenghtArg1 = argc >= 1 ? strlen(argv[1]) : 0;
+    size_t lenghtArg1 = argc >= 2 ? strlen(argv[1]) : 0;
     size_t lenghtArg2 = argc >= 3 ? strlen(argv[2]) : 0;
+
     /* no input */
     if (argc <= 1) {
         return -1;
