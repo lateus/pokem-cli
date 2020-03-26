@@ -6,11 +6,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <signal.h>
+#include <errno.h>
 
 #define PROGRAM_STRING "PokeM"
 #define VERSION_STRING "0.1"
 
 extern int printMessages;
+
+void sigint_handler(int signalCode);
+void sigabrt_handler(int signalCode);
+void sigsegv_handler(int signalCode);
 
 int autodetect(int argc, const char *argv[]);
 void printDatabaseMenu();
@@ -26,6 +32,7 @@ int main(int argc, const char *argv[])
     int autodetectResult = -1;
 
     printMessages = 1; /* enable messages */
+    signal(SIGINT, sigint_handler);
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
     system("title " PROGRAM_STRING " v" VERSION_STRING);
@@ -131,6 +138,32 @@ int main(int argc, const char *argv[])
 
     fflush(stdout);
     return 0;
+}
+
+/** signal handlers */
+
+/* SIGINT - Interactive */
+void sigint_handler(int signalCode)
+{
+    printMessage(stderr, InfoMessage, "User interrupt. Aborted.\n");
+    exit(signalCode);
+}
+
+/* SIGABRT - Abnormal termination */
+void sigabrt_handler(int signalCode)
+{
+    printMessage(stderr, InfoMessage, "Aborted.\n");
+    exit(signalCode);
+}
+
+/* SIGSEGV - Segmentation fault */
+void sigsegv_handler(int signalCode)
+{
+    printMessage(stderr, InfoMessage, LIGHT "The inferior stopped because it received a signal from the Operating System.\n" RESET \
+                                      "Code of the signal:    " LRED "%d" RESET "\n" \
+                                      "Name of the signal:    " LRED "SIGSEGV" RESET "\n" \
+                                      "Meaning of the signal: " LRED "Segmentation fault" RESET "\n", signalCode);
+    exit(signalCode);
 }
 
 
