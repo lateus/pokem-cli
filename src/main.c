@@ -154,7 +154,7 @@ int autodetect(int argc, const char *argv[])
     } else if (argc == 10) {
         fprintf(stdout, "Encode WM\n\n");
         return encodeWM(argc, argv);
-    } else if (argc == 8) {
+    } else if (argc == 7) {
         fprintf(stdout, "Encode SOS\n\n");
         return encodeSOSM(argc, argv);
     } else {

@@ -32,7 +32,7 @@ void showHelp(const char *programName)
                     "on your input. If you enter a Wonder Mail or SOS Mail, this program\n" \
                     "will try to decode it. If you enter an SOS Mail and an item, this\n" \
                     "program will try to convert it in a A-OK Mail and then in a Thank-You\n" \
-                    "Mail. If you enter exactly 9 or 7 arguments, this program will try\n" \
+                    "Mail. If you enter exactly 9 or 6 arguments, this program will try\n" \
                     "to encode a Wonder Mail or a SOS Mail respectively.\n" \
                     "\n" \
                     LIGHT "Conventions: ==============================================================\n" RESET \
@@ -78,16 +78,16 @@ void showHelp(const char *programName)
                     LGREEN "%s \'????6+7SHX???1?4???H??4?NP???4???TR?????X25??PJ??07?C?\'\n" RESET \
                     "\n" \
                     LIGHT "Encode SOS Mail: ==========================================================\n" RESET \
-                    LIGHT "Usage: " LGREEN "%s [Mail type] [Pkmn client] [Pkmn nickname] [Dungeon] [Floor] [Mail ID] [Rescue chances]\n" RESET \
+                    LIGHT "Usage: " LGREEN "%s [Mail type] [Pkmn client] [Pkmn nickname] [Dungeon] [Floor] [Rescue chances]\n" RESET \
                     "Encode a SOS Mail using the entered arguments.\n" \
-                    "You must enter exactly 7 arguments.\n" \
+                    "You must enter exactly 6 arguments.\n" \
                     "You can use both numeric or text values for pokemon, items and dungeons.\n" \
                     "For the remaining fields, only numeric values are accepted.\n" \
                     "Check the database to know the available pokemon, items, dungeons, etc.\n" \
                     "Example of valid entries:\n" \
-                    LGREEN "%s 0 Chansey Nurcy \'Joyous Tower\' 50 1234 10\n" RESET \
+                    LGREEN "%s 0 Chansey Nurcy \'Joyous Tower\' 50 30\n" RESET \
                     LIGHT "NOTE: " RESET "Rescue (SOS Mail) a Chansey named \"Nurcy\" at Joyous Tower floor 50.\n" \
-                    "      The Mail ID is 1234 and you can try 10 times.\n" \
+                    "      You can try 30 times.\n" \
                     "--It is very unlikely that you ever need to encode a SOS Mail, but, still, I want to support it.\n" \
                     "\n"
                     LIGHT "Convert SOS Mail in A-OK and Thank-You Mail: ==============================\n" RESET \
@@ -725,17 +725,8 @@ int requestAndParseSosMailData(struct SosMail *sos)
         sos->itemReward = 1 + rand() % (itemsCount - 6); /* ignored if not thank-u mail */
     }
 
-    /* mail ID */
-    forever {
-        if (requestAndValidateIntegerInput(&selection, 1, rand() % 10000, LIGHT "Enter the " LGREEN "Mail ID" RESET LIGHT " (0 to 9999, leave it blank for random).\n" RESET) == NoError) {
-            if (checkMailID(selection) == NoError) {
-                break; /* input is ok */
-            } else {
-                printMessage(stderr, ErrorMessage, LRED "%d" RESET " is out of range.\n", selection);
-            }
-        }
-    }
-    sos->mailID = selection;
+    /* Mail ID */
+    sos->mailID = rand() % 10000;
 
     /* Chances left */
     unsigned int minChancesLeft = sos->mailType == SosMailType ?   1 :  0;
@@ -775,7 +766,7 @@ int requestAndParseSOSMailConvertion(char *password, int *item)
     /* reward item */
     forever {
         randomHolder = 1 + rand() % (itemsCount - 6);
-        if (requestAndValidateStringInput(stringInput, 100, 1, itemsStr[randomHolder], LIGHT "Enter the name or room index of the " LGREEN "reward item for the Thank-You mail" RESET LIGHT " (type \"" LGREEN "0" RESET LIGHT "\" or \"" LGREEN "Nothing" RESET LIGHT "\" for no reward, or leave it blank for random).\n" RESET) != NoError) {
+        if (requestAndValidateStringInput(stringInput, 100, 1, itemsStr[randomHolder], LIGHT "Enter the name or room index of the " LGREEN "reward item" RESET LIGHT " for the Thank-You mail" RESET LIGHT " (type \"" LGREEN "0" RESET LIGHT "\" or \"" LGREEN "Nothing" RESET LIGHT "\" for no reward, or leave it blank for random).\n" RESET) != NoError) {
             continue;
         }
         selection = (unsigned int)strtol(stringInput, &stringEnd, 10);

@@ -327,7 +327,7 @@ int encodeSOSM(int argc, const char *argv[])
 {
     struct SosMail sos;
 
-    if (argc != 8 || argv == NULL) {
+    if (argc != 7 || argv == NULL) {
         requestAndParseSosMailData(&sos);
     } else if (parseSOSData(argv, &sos) != NoError) {
         fputs("Aborting...\n", stderr);
@@ -420,8 +420,7 @@ int parseSOSData(const char *argv[], struct SosMail *sos)
     
     
     sos->floor = (unsigned int)atoi(argv[5]);
-    sos->mailID = (unsigned int)atoi(argv[6]);
-    sos->chancesLeft = (unsigned int)atoi(argv[7]);
+    sos->chancesLeft = (unsigned int)atoi(argv[6]);
     if (strlen(argv[3]) > 0) {
         strncpy(sos->pkmnNick, argv[3], 10);
     } else {
