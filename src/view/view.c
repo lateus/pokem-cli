@@ -541,7 +541,7 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
 
 int requestSOSMailPassword(char *password)
 {
-    return requestAndValidateStringInput(password, 54, 0, NULL, LIGHT "Enter the SOS Mail's password (case sensitive)\n" RESET);
+    return requestAndValidateStringInput(password, 54, 0, NULL, LIGHT "Enter the SOS Mail's password\n" RESET);
 }
 
 
@@ -752,9 +752,9 @@ int requestAndParseSosMailData(struct SosMail *sos)
 
 
 
-int requestAndParseSOSMailConvertion(char *password, int *item)
+int requestAndParseSOSMailConversion(char *password, int *item)
 {
-    unsigned int i = 0;
+    unsigned int i;
     unsigned int selection = -1;
     int errorCode = NoError;
     char stringInput[101];
@@ -762,8 +762,12 @@ int requestAndParseSOSMailConvertion(char *password, int *item)
     char *stringEnd;
     int mostSimilarIndex = 0;
 
-    if (requestAndValidateStringInput(password, 54, 0, NULL, LIGHT "Enter the SOS, A-OK or Thank-You Mail's " LGREEN "password" RESET LIGHT " (case sensitive)\n" RESET) != NoError) {
+    if (requestAndValidateStringInput(password, 54, 0, NULL, LIGHT "Enter the SOS, A-OK or Thank-You Mail's " LGREEN "password" RESET LIGHT ".\n" RESET) != NoError) {
         return InputError;
+    } else {
+        for (i = 0; i < strlen(password); ++i) {
+            password[i] = toupper(password[i]);
+        }
     }
 
     /* reward item */

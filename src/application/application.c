@@ -23,6 +23,9 @@ int decodeWM(int argc, const char *argv[]) /* The passwords are received here: i
 
     if (argc <= 1 || argv == NULL) {
         requestWonderMailPassword(psw);
+        for (i = 0; (unsigned int)i < strlen(psw); ++i) {
+            psw[i] = toupper(psw[i]);
+        }
     }
     for (i = 1; i < argc || i == 1; ++i) {
         if (argc > 1) {
@@ -286,6 +289,9 @@ int decodeSOSM(int argc, const char *argv[])
 
     if (argc <= 1) {
         requestSOSMailPassword(psw);
+        for (i = 0; (unsigned int)i < strlen(psw); ++i) {
+            psw[i] = toupper(psw[i]);
+        }
     }
 
     for (i = 1; i < argc || i == 1; ++i) {
@@ -459,7 +465,10 @@ int convertSOS(int argc, const char *argv[])
     char *timeStr = NULL;
 
     if (argc <= 1) {
-        requestAndParseSOSMailConvertion(SOSPassword, &itemReward);
+        requestAndParseSOSMailConversion(SOSPassword, &itemReward);
+        for (i = 0; (unsigned int)i < strlen(SOSPassword); ++i) {
+            SOSPassword[i] = toupper(SOSPassword[i]);
+        }
         mailType = getMailType(SOSPassword);
         if (mailType == AOkMailType) {
             strncpy(AOKPassword, SOSPassword, 54);
