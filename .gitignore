@@ -3,6 +3,7 @@ binlib/
 build/
 lib/
 .vscode/
+log*.txt
 
 # Qt project files
 *.user
