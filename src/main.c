@@ -67,9 +67,9 @@ int main(int argc, const char *argv[])
         return 0;
     } else if (argc > 1 && (!strcmp(argv[1], "-d") || !strcmp(argv[1], "--database"))) {
         if (argc <= 2) {
-            fprintf(stderr, LRED "ERROR:" RESET LIGHT " Missing argument.\n" RESET \
-                       "       Expected type [pokemon|items|dungeons|areas|missions|rewards|mails]\n" \
-                       "       Example: " LGREEN "%s --database pokemon\n" RESET, argv[0]);
+            printMessage(stderr, ErrorMessage, "Missing argument.\n" RESET \
+                                               "       Expected type [pokemon|items|dungeons|areas|missions|rewards|mails]\n" \
+                                               "       Example: " LGREEN "%s --database pokemon" RESET "\n", argv[0]);
             return InputError;
         } else {
             for (i = 0; i < 7; ++i) {
@@ -78,8 +78,8 @@ int main(int argc, const char *argv[])
                     return 0;
                 }
             }
-            fprintf(stderr, LRED "ERROR:" RESET LIGHT " Unknown database type " LGREEN "%s" RESET LIGHT ".\n" RESET \
-                                 "       Available types: [pokemon|items|dungeons|areas|missions|rewards|mails]\n", argv[2]);
+            printMessage(stderr, ErrorMessage, "Unknown database type " LRED "%s" RESET ".\n" RESET \
+                                               "       Available types: [pokemon|items|dungeons|areas|missions|rewards|mails]\n", argv[2]);
             return InputError;
         }
     }
