@@ -13,6 +13,8 @@
 #define VERSION_STRING "0.1"
 
 extern int printMessages;
+extern struct ErrorReport errorReport;
+char errorCommand[510] = {0};
 
 void sigint_handler(int signalCode);
 void sigabrt_handler(int signalCode);
@@ -31,8 +33,21 @@ int main(int argc, const char *argv[])
     int selection, result = 0, item = 0, dungeon = 0, game = 0;
     int autodetectResult = -1;
 
-    printMessages = 1; /* enable messages */
+    /* handle signals */
     signal(SIGINT, sigint_handler);
+    signal(SIGABRT, sigabrt_handler);
+    signal(SIGSEGV, sigsegv_handler);
+
+    strncpy(errorReport.applicationName, PROGRAM_STRING, 50);
+    strncpy(errorReport.applicationVersion, VERSION_STRING, 50);
+    strncpy(errorReport.issueUrl, "http://github.com/lateo96/pokem-cli/issues", 509);
+    strncpy(errorReport.mailUrl, "thecrowporation@gmail.com", 509);
+    printMessages = 1; /* enable messages */
+
+    for (i = 0; i < argc; ++i) {
+        sprintf(errorCommand, "argv[%d]: %s", i, argv[i]);
+        addErrorReportCommand(errorCommand);
+    }
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
     system("title " PROGRAM_STRING " v" VERSION_STRING);
@@ -71,9 +86,11 @@ int main(int argc, const char *argv[])
 
     /* A seed to generate random numbers */
     srand((unsigned int)time(NULL));
-    fprintf(stderr, "1\n");
+
+    sprintf(errorCommand, "Autodetecting...");
+    addErrorReportCommand(errorCommand);
+
     autodetectResult = autodetect(argc, argv);
-    fprintf(stderr, "2\n");
     if (autodetectResult == -1) {
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
         (void)result;
@@ -82,47 +99,99 @@ int main(int argc, const char *argv[])
             selection = showSelectionScreen();
             switch (selection) {
             case 1:
+                sprintf(errorCommand, "Selected: Decode WM");
+                addErrorReportCommand(errorCommand);
                 result = decodeWM(0, NULL);
                 break;
             case 2:
+                sprintf(errorCommand, "Selected: Encode WM");
+                addErrorReportCommand(errorCommand);
                 result = encodeWM(0, NULL);
                 break;
             case 3:
+                sprintf(errorCommand, "Selected: Decode SOS");
+                addErrorReportCommand(errorCommand);
                 result = decodeSOSM(0, NULL);
                 break;
             case 4:
+                sprintf(errorCommand, "Selected: Encode SOS");
+                addErrorReportCommand(errorCommand);
                 result = encodeSOSM(0, NULL);
                 break;
             case 5:
+                sprintf(errorCommand, "Selected: Convert SOS");
+                addErrorReportCommand(errorCommand);
                 result = convertSOS(0, NULL);
                 break;
             case 6:
+                dungeon = 2;
+                sprintf(errorCommand, "Selected: Generate %d massive item missions in dungeon %d", 8, dungeon);
+                addErrorReportCommand(errorCommand);
+
+                sprintf(errorCommand, "Request item");
+                addErrorReportCommand(errorCommand);
                 item = requestItem();
+
+                sprintf(errorCommand, "Generate %d massive item missions in dungeon %d with reward item %d", 8, dungeon, item);
+                addErrorReportCommand(errorCommand);
                 generateMassiveItemMissions(2, item, 8);
                 break;
             case 7:
+                sprintf(errorCommand, "Selected: Generate %d high-rank missions", 8);
+                addErrorReportCommand(errorCommand);
+
+                sprintf(errorCommand, "Request dungeon");
+                addErrorReportCommand(errorCommand);
                 dungeon = requestDungeon();
+
+                sprintf(errorCommand, "Request Item");
+                addErrorReportCommand(errorCommand);
                 item = requestItem();
+
+                sprintf(errorCommand, "Generate %d massive high-rank missions in dungeon %d with reward item %d", 8, dungeon, item);
+                addErrorReportCommand(errorCommand);
                 generateMassiveHighRankMissions(dungeon, item, 8);
                 break;
             case 8:
+                sprintf(errorCommand, "Selected: Unlock exclusive pokemon");
+                addErrorReportCommand(errorCommand);
+
+                sprintf(errorCommand, "Request game");
+                addErrorReportCommand(errorCommand);
                 game = requestGame();
+
+                sprintf(errorCommand, "Unlock exclusive pokemon of game %d", game);
+                addErrorReportCommand(errorCommand);
                 unlockExclusivePokemon(game);
                 break;
             case 9:
-                unlockDungeons(game);
+                sprintf(errorCommand, "Selected: Unlock dungeons");
+                addErrorReportCommand(errorCommand);
+                unlockDungeons();
                 break;
             case 10:
+                sprintf(errorCommand, "Selected: Show database");
+                addErrorReportCommand(errorCommand);
+
                 printDatabaseMenu();
+                sprintf(errorCommand, "Request database topic");
+                addErrorReportCommand(errorCommand);
                 if (requestAndValidateIntegerInput((unsigned int*)&selection, 0, 0, "") != NoError) {
                     break;
                 }
+
+                sprintf(errorCommand, "Show database of type %d", selection - 1);
+                addErrorReportCommand(errorCommand);
                 showDatabase(selection - 1);
                 break;
             case 11:
+                sprintf(errorCommand, "Selected: Show help");
+                addErrorReportCommand(errorCommand);
                 showHelp(argv[0]);
                 break;
             default:
+                sprintf(errorCommand, "Selected: Exit");
+                addErrorReportCommand(errorCommand);
                 fputs("Exiting...\n", stdout);
                 return 0;
             }
@@ -130,9 +199,13 @@ int main(int argc, const char *argv[])
             fputc('\n', stdout);
         }
 #else
+        sprintf(errorCommand, "Exit with code %d", result);
+        addErrorReportCommand(errorCommand);
         return result;
 #endif
     } else {
+        sprintf(errorCommand, "Exit with code %d", autodetectResult);
+        addErrorReportCommand(errorCommand);
         return autodetectResult;
     }
 
@@ -159,10 +232,18 @@ void sigabrt_handler(int signalCode)
 /* SIGSEGV - Segmentation fault */
 void sigsegv_handler(int signalCode)
 {
+    FILE *f = NULL;
     printMessage(stderr, InfoMessage, LIGHT "The inferior stopped because it received a signal from the Operating System.\n" RESET \
                                       "Code of the signal:    " LRED "%d" RESET "\n" \
                                       "Name of the signal:    " LRED "SIGSEGV" RESET "\n" \
                                       "Meaning of the signal: " LRED "Segmentation fault" RESET "\n", signalCode);
+    f = fopen("REPORT.TXT", "w");
+    if (f) {
+        dumpErrorReport(f);
+        fclose(f);
+        printMessage(stderr, InfoMessage, "A report named REPORT.TXT has been created.\n"
+                                          "Open an issue in %s or send a mail to %s, and in both cases attach the above report.\n", errorReport.issueUrl, errorReport.mailUrl);
+    }
     exit(signalCode);
 }
 
@@ -178,21 +259,39 @@ int autodetect(int argc, const char *argv[])
     }
     printMessage(stdout, InfoMessage, "Autodetected: ");
     if (lenghtArg1 >= 20 && lenghtArg1 <= 28) {
+        sprintf(errorCommand, "Autodetected: Decode WM");
+        addErrorReportCommand(errorCommand);
+
         fprintf(stdout, "Decode WM\n\n");
         return decodeWM(argc, argv);
     } else if (lenghtArg1 >= 48 && lenghtArg1 <= 56 && lenghtArg2 > 0 && lenghtArg2 <= 16) {
+        sprintf(errorCommand, "Autodetected: Convert SOS");
+        addErrorReportCommand(errorCommand);
+
         fprintf(stdout, "Convert SOS\n\n");
         return convertSOS(argc, argv);
     } else if (lenghtArg1 >= 48 && lenghtArg1 <= 56) {
+        sprintf(errorCommand, "Autodetected: Decode SOS");
+        addErrorReportCommand(errorCommand);
+
         fprintf(stdout, "Decode SOS\n\n");
         return decodeSOSM(argc, argv);
     } else if (argc == 10) {
+        sprintf(errorCommand, "Autodetected: Encode WM");
+        addErrorReportCommand(errorCommand);
+
         fprintf(stdout, "Encode WM\n\n");
         return encodeWM(argc, argv);
     } else if (argc == 7) {
+        sprintf(errorCommand, "Autodetected: Encode SOS");
+        addErrorReportCommand(errorCommand);
+
         fprintf(stdout, "Encode SOS\n\n");
         return encodeSOSM(argc, argv);
     } else {
+        sprintf(errorCommand, "Autodetection failed");
+        addErrorReportCommand(errorCommand);
+
         fprintf(stdout, "Nothing.\n\n");
         return -1; /* failed to autodetect */
     }

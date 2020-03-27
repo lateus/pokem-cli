@@ -8,6 +8,8 @@
 #include <errno.h>
 #include <time.h>
 
+extern char errorCommand[];
+
 int decodeWM(int argc, const char *argv[]) /* The passwords are received here: in argv */
 {
     char psw[25] = {0};
@@ -22,11 +24,14 @@ int decodeWM(int argc, const char *argv[]) /* The passwords are received here: i
     char *timeStr = NULL;
 
     if (argc <= 1 || argv == NULL) {
+        sprintf(errorCommand, "Request Wonder Mail password");
+        addErrorReportCommand(errorCommand);
         requestWonderMailPassword(psw);
         for (i = 0; (unsigned int)i < strlen(psw); ++i) {
             psw[i] = toupper(psw[i]);
         }
     }
+
     for (i = 1; i < argc || i == 1; ++i) {
         if (argc > 1) {
             fprintf(stdout, LIGHT "%d.\n" RESET, i);
@@ -75,6 +80,8 @@ int encodeWM(int argc, const char *argv[])
     char *timeStr = NULL;
 
     if (argc != 10 || argv == NULL) {
+        sprintf(errorCommand, "Request and parse Wonder Mail data");
+        addErrorReportCommand(errorCommand);
         requestAndParseWonderMailData(&wm);
     } else if (parseWMData(argv, &wm) != NoError) {
         fputs("Aborting...\n", stderr);
@@ -288,6 +295,8 @@ int decodeSOSM(int argc, const char *argv[])
     char *timeStr = NULL;
 
     if (argc <= 1) {
+        sprintf(errorCommand, "Request SOS Mail password");
+        addErrorReportCommand(errorCommand);
         requestSOSMailPassword(psw);
         for (i = 0; (unsigned int)i < strlen(psw); ++i) {
             psw[i] = toupper(psw[i]);
@@ -342,6 +351,8 @@ int encodeSOSM(int argc, const char *argv[])
     char *timeStr = NULL;
 
     if (argc != 7 || argv == NULL) {
+        sprintf(errorCommand, "Request and parse SOS Mail data");
+        addErrorReportCommand(errorCommand);
         requestAndParseSosMailData(&sos);
     } else if (parseSOSData(argv, &sos) != NoError) {
         fputs("Aborting...\n", stderr);
@@ -465,6 +476,8 @@ int convertSOS(int argc, const char *argv[])
     char *timeStr = NULL;
 
     if (argc <= 1) {
+        sprintf(errorCommand, "Request and parse SOS Mail data for conversion");
+        addErrorReportCommand(errorCommand);
         requestAndParseSOSMailConversion(SOSPassword, &itemReward);
         for (i = 0; (unsigned int)i < strlen(SOSPassword); ++i) {
             SOSPassword[i] = toupper(SOSPassword[i]);
