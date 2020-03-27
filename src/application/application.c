@@ -16,7 +16,7 @@ int decodeWM(int argc, const char *argv[]) /* The passwords are received here: i
 
     struct WonderMail mail = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     struct WonderMailInfo mailInfo  = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, 0, {0}, {0} }; /* The 8th element is a char */
-    int i;
+    int i, j;
     int errorCode;
 
     FILE *f = NULL;
@@ -36,6 +36,9 @@ int decodeWM(int argc, const char *argv[]) /* The passwords are received here: i
         if (argc > 1) {
             fprintf(stdout, LIGHT "%d.\n" RESET, i);
             strncpy(psw, argv[i], 24);
+        }
+        for (j = 0; (unsigned int)j < strlen(psw); ++j) {
+            psw[j] = toupper(psw[j]);
         }
         errorCode = decodeWonderMail(psw, &mail);
         if (errorCode) {
@@ -287,7 +290,7 @@ int decodeSOSM(int argc, const char *argv[])
 
     struct SosMail mail = { 0, 0, 0, 0, 0, 0, 0, {0}, 0, 0, 0, 0, 0, 0, 0 };
     struct SosMailInfo mailInfo  = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, 0, {0}, {0}, {0}, {0} }; /* The 8th element is a char */
-    int i;
+    int i, j;
     int errorCode;
 
     FILE *f = NULL;
@@ -307,6 +310,9 @@ int decodeSOSM(int argc, const char *argv[])
         if (argc > 1) {
             fprintf(stdout, LIGHT "%d.\n" RESET, i);
             strncpy(psw, argv[i], 54);
+        }
+        for (j = 0; (unsigned int)j < strlen(psw); ++j) {
+            psw[j] = toupper(psw[j]);
         }
         errorCode = decodeSosMail(psw, &mail);
         if (errorCode != NoError) {
@@ -495,10 +501,19 @@ int convertSOS(int argc, const char *argv[])
             fprintf(stdout, LIGHT "%d.\n" RESET, count);
             mailType = getMailType(argv[i]);
             strncpy(SOSPassword, argv[i], 54);
+            for (j = 0; (unsigned int)j < strlen(SOSPassword); ++j) {
+                SOSPassword[j] = toupper(SOSPassword[j]);
+            }
             if (mailType == AOkMailType) {
                 strncpy(AOKPassword, argv[i], 54);
+                for (j = 0; (unsigned int)j < strlen(AOKPassword); ++j) {
+                    AOKPassword[j] = toupper(AOKPassword[j]);
+                }
             } else if (mailType == ThankYouMailType) {
                 strncpy(ThankYouPassword, argv[i], 54);
+                for (j = 0; (unsigned int)j < strlen(ThankYouPassword); ++j) {
+                    ThankYouPassword[j] = toupper(ThankYouPassword[j]);
+                }
             } else if (mailType == InvalidMailType) {
                 continue;
             }
