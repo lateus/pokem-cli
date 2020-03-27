@@ -646,9 +646,9 @@ int generateMassiveItemMissions(int dungeon, int item, int amount)
         while (checkFloor(wm.floor, wm.dungeon) != NoError) {
             wm.floor++;
         }
-        while (checkPokemon(wm.pkmnClient, WonderMailType) != NoError) {
+        do {
             wm.pkmnClient = 1 + rand() % (pkmnSpeciesCount - 11);
-        }
+        } while (checkPokemon(wm.pkmnClient, WonderMailType) != NoError);
         wm.pkmnTarget = wm.pkmnClient;
         encodeWonderMail(&wm, password, 1);
         setWonderMailInfo(&wm, &wmInfo);
@@ -735,9 +735,9 @@ int generateMassiveHighRankMissions(int dungeon, int item, int amount)
         while (checkFloor(wm.floor, wm.dungeon) != NoError) {
             wm.floor++;
         }
-        while (checkPokemon(wm.pkmnClient, WonderMailType)) {
+        do {
             wm.pkmnClient = 1 + rand() % (pkmnSpeciesCount - 11);
-        }
+        } while (checkPokemon(wm.pkmnClient, WonderMailType) != NoError);
         wm.pkmnTarget = wm.pkmnClient;
         encodeWonderMail(&wm, password, 1);
         setWonderMailInfo(&wm, &wmInfo);
@@ -827,9 +827,9 @@ int unlockDungeons()
     int i;
     for (i = 0; i < 3; ++i) {
         wm.dungeon = dungeonsToUnlock[i];
-        while (checkPokemon(wm.pkmnClient, WonderMailType)) {
+        do {
             wm.pkmnClient = 1 + rand() % (pkmnSpeciesCount - 11);
-        }
+        } while (checkPokemon(wm.pkmnClient, WonderMailType));
         wm.pkmnTarget = wm.pkmnClient;
         encodeWonderMail(&wm, password, 1);
         setWonderMailInfo(&wm, &wmInfo);
