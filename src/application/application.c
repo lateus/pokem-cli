@@ -630,7 +630,7 @@ int generateMassiveItemMissions(int dungeon, int item, int amount)
 {
     int errorCode = NoError;
 
-    struct WonderMail wm = { WonderMailType, HelpMe, 0, 0, 0, 0, MoneyMoneyItem, 0, 0, 0, 0, 0xFF, 0, 0 };
+    struct WonderMail wm = { WonderMailType, HelpMe, 0, 0, 0, 0x09, MoneyMoneyItem, 0, 0, 0, 0, 0xFF, 0, 0 };
     struct WonderMailInfo wmInfo = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, '\0', {0}, {0} };
     char password[25] = {0};
     int i;
@@ -693,7 +693,7 @@ int generateMassiveItemMissions(int dungeon, int item, int amount)
 int generateMassiveHighRankMissions(int dungeon, int item, int amount)
 {
     int errorCode = NoError;
-    struct WonderMail wm = { WonderMailType, HelpMe, 0, 0, 0, 0, MoneyMoneyItem, 0, 0, 0, 0, 0xFF, 0, 0 };
+    struct WonderMail wm = { WonderMailType, HelpMe, 0, 0, 0, 0x09, MoneyMoneyItem, 0, 0, 0, 0, 0xFF, 0, 0 };
     struct WonderMailInfo wmInfo = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, '\0', {0}, {0} };
     char password[25] = {0};
 
@@ -784,7 +784,7 @@ int unlockExclusivePokemon(enum GameType gameType)
     int pokemonRedRescueTeam[]  = { 137, 251, 336, 340, 374 }; /* Porygon, Mantine, Plusle, Roselia and Feebas */
     int pokemonBlueRescueTeam[] = { 129, 131, 190, 337 }; /* Magikarp, Lapras, Aipom and Minum */
 
-    struct WonderMail wm = { WonderMailType, HelpMe, 0, 0, 0, 0, MoneyMoney, 0x09, 0, 0, 0, 0xFF, 0, 1 };
+    struct WonderMail wm = { WonderMailType, HelpMe, 0, 0, 0, 0x09, MoneyMoney, 0x09, 0, 0, 0, 0xFF, 0, 1 };
     struct WonderMailInfo wmInfo = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, '\0', {0}, {0} };
     char password[25] = {0};
 
@@ -831,7 +831,7 @@ int unlockExclusivePokemon(enum GameType gameType)
 int unlockDungeons()
 {
     int dungeonsToUnlock[] = { 44, 45, 46 }; /* Remains Island, Marvelous Sea and Fantasy Strait */
-    struct WonderMail wm = { WonderMailType, HelpMe, 0, 0, 0, 0, MoneyMoney, 0x09, 0, 0, 0, 0xFF, 0, 1 };
+    struct WonderMail wm = { WonderMailType, HelpMe, 0, 0, 0, 0x09, MoneyMoney, 0x09, 0, 0, 0, 0xFF, 0, 1 };
     struct WonderMailInfo wmInfo = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, '\0', {0}, {0} };
     char password[25] = {0};
 
