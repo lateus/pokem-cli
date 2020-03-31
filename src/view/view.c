@@ -1017,11 +1017,14 @@ void printWonderMailData(const struct WonderMailInfo *mailInfo, const struct Won
                     COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Place:      " RESET COLOR_BACKGROUND "%-109s" COLOR_BORDER "*" RESET EndOfLineString, "", mailInfo->client, newObjective, placeAndFloor);
     fprintf(stdout, COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Difficulty: " RESET COLOR_BACKGROUND "%s%c%-32s" COLOR_BORDER "*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Reward:     " RESET COLOR_BACKGROUND "%-109s" COLOR_BORDER "*" RESET EndOfLineString, diffColor, mailInfo->difficulty, "", newReward);
-    fprintf(stdout, COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Password:   " RESET COLOR_BACKGROUND "%s" COLOR_YELLOW "%s" RESET COLOR_BACKGROUND "%-25s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "            %s" COLOR_YELLOW "%s" RESET COLOR_BACKGROUND "%-25s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
+    fprintf(stdout, COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Password:   " RESET COLOR_BACKGROUND "%s " COLOR_YELLOW "%s" RESET COLOR_BACKGROUND " %-23s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
+                    COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "            %s " COLOR_YELLOW "%s" RESET COLOR_BACKGROUND " %-23s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "************************************************" RESET EndOfLineString,
                     temp, temp + 5, temp + 10, temp + 15, temp + 20, temp + 25);
 #else
+    (void)i;
+    (void)j;
+    (void)temp;
     printWonderMailDataToFile(mailInfo, stdout);
 #endif
 }
@@ -1120,10 +1123,13 @@ void printSOSData(const struct SosMailInfo *mailInfo, const struct SosMail *mail
                     COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "ID:           " RESET COLOR_BACKGROUND "%-33s" COLOR_BORDER "*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "%s" WHITE COLOR_BACKGROUND "%s"             RESET COLOR_BACKGROUND "%-33s" COLOR_BORDER "%s" RESET "%s", diffColor, mailInfo->difficulty, "", newReward, mailInfo->id, mail->mailType == SosMailType ? "* " : "\r", mail->mailType == SosMailType ? "Chances left: " : "\r", mail->mailType == SosMailType ? mailInfo->chancesLeft : "\r", mail->mailType == SosMailType ? "*" : "\r", mail->mailType == SosMailType ? "\n" : "\r");
     fprintf(stdout, COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Password:     " RESET COLOR_BACKGROUND "%s" COLOR_YELLOW "%s" RESET COLOR_BACKGROUND "%-20s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "              %s" COLOR_YELLOW "%s" RESET COLOR_BACKGROUND "%-20s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "              %s" COLOR_YELLOW "%s" RESET COLOR_BACKGROUND "%-20s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString, temp, temp + 6, temp + 15, temp + 21, temp + 27, temp + 36, temp + 42, temp + 48, temp + 57);
+                    COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "              %s " COLOR_YELLOW "%s" RESET COLOR_BACKGROUND " %-18s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
+                    COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "              %s " COLOR_YELLOW "%s" RESET COLOR_BACKGROUND " %-18s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString, temp, temp + 6, temp + 15, temp + 21, temp + 27, temp + 36, temp + 42, temp + 48, temp + 57);
     fprintf(stdout, COLOR_BORDER COLOR_BACKGROUND "**************************************************" RESET EndOfLineString);
 #else
+    (void)i;
+    (void)j;
+    (void)temp;
     printSOSDataToFile(mailInfo, mail->mailType, stdout);
 #endif
 }
@@ -1134,12 +1140,17 @@ void printWonderMailDataToFile(const struct WonderMailInfo *mailInfo, FILE *f)
 {
     char placeAndFloor[51] = {0};
 
-    char passwordHalf1[13] = {0};
-    char passwordHalf2[13] = {0};
+    int i, j;
+    char temp[30];
 
     sprintf(placeAndFloor, "%s  %s", mailInfo->place, mailInfo->floor);
-    strncpy(passwordHalf1, mailInfo->password, 12);
-    strncpy(passwordHalf2, mailInfo->password + 12, 12);
+
+    for (i = j = 0; i < 24; ++i) {
+        if (i && i % 4 == 0) {
+            temp[i + j++] = '\0';
+        }
+        temp[i + j] = mailInfo->password[i];
+    }
 
     fprintf(f, "************************************************\n"
                     "* %-44s *\n"
@@ -1152,10 +1163,10 @@ void printWonderMailDataToFile(const struct WonderMailInfo *mailInfo, FILE *f)
                     "* Place:      %-32s *\n"
                     "* Difficulty: %s%c%-31s *\n"
                     "* Reward:     %-32s *\n"
-                    "* Password:   %-32s *\n"
-                    "*             %-32s *\n"
+                    "* Password:   %s %s %-22s *\n"
+                    "*             %s %s %-22s *\n"
                     "************************************************\n",
-            mailInfo->head, "", mailInfo->body1, mailInfo->body2, "", mailInfo->client, mailInfo->objective, placeAndFloor, "", mailInfo->difficulty, "", mailInfo->reward, passwordHalf1, passwordHalf2);
+            mailInfo->head, "", mailInfo->body1, mailInfo->body2, "", mailInfo->client, mailInfo->objective, placeAndFloor, "", mailInfo->difficulty, "", mailInfo->reward, temp, temp + 5, temp + 10, temp + 15, temp + 20, temp + 25);
 }
 
 
@@ -1164,14 +1175,19 @@ void printSOSDataToFile(const struct SosMailInfo *mailInfo, enum MailType mailTy
 {
     char placeAndFloor[51] = {0};
 
-    char passwordThird1[19] = {0};
-    char passwordThird2[19] = {0};
-    char passwordThird3[19] = {0};
+    int i, j;
+    char temp[70];
 
     sprintf(placeAndFloor, "%s  %s", mailInfo->place, mailInfo->floor);
-    strncpy(passwordThird1, mailInfo->password, 18);
-    strncpy(passwordThird2, mailInfo->password + 18, 18);
-    strncpy(passwordThird3, mailInfo->password + 36, 18);
+
+    for (i = j = 0; i < 54; ++i) {
+        if (i ==  5 || i == 13 || i == 18 ||
+            i == 23 || i == 31 || i == 36 ||
+            i == 41 || i == 49) {
+            temp[i + j++] = '\0';
+        }
+        temp[i + j] = mailInfo->password[i];
+    }
 
     fprintf(f, "**************************************************\n"
                     "* %-46s *\n"
@@ -1185,11 +1201,11 @@ void printSOSDataToFile(const struct SosMailInfo *mailInfo, enum MailType mailTy
                     "* Reward:       %-32s *\n"
                     "* ID:           %-32s *\n"
                     "%s%s"          "%-33s%s%s"
-                    "* Password:     %-32s *\n"
-                    "*               %-32s *\n"
-                    "*               %-32s *\n"
+                    "* Password:     %s %s %-17s *\n"
+                    "*               %s %s %-17s *\n"
+                    "*               %s %s %-17s *\n"
                     "**************************************************\n",
-            mailInfo->head, "", mailInfo->body, "", mailInfo->client, mailInfo->objective, placeAndFloor, "", mailInfo->difficulty, "", mailInfo->reward, mailInfo->id, mailType == SosMailType ? "* " : "\r", mailType == SosMailType ? "Chances left: " : "\r", mailType == SosMailType ? mailInfo->chancesLeft : "\r", mailType == SosMailType ? "*" : "\r", mailType == SosMailType ? "\n" : "\r", passwordThird1, passwordThird2, passwordThird3);
+            mailInfo->head, "", mailInfo->body, "", mailInfo->client, mailInfo->objective, placeAndFloor, "", mailInfo->difficulty, "", mailInfo->reward, mailInfo->id, mailType == SosMailType ? "* " : "\r", mailType == SosMailType ? "Chances left: " : "\r", mailType == SosMailType ? mailInfo->chancesLeft : "\r", mailType == SosMailType ? "*" : "\r", mailType == SosMailType ? "\n" : "\r", temp, temp + 6, temp + 15, temp + 21, temp + 27, temp + 36, temp + 42, temp + 48, temp + 57);
 }
 
 
