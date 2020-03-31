@@ -17,6 +17,51 @@ Official documentation of the library ***PokéM***. Here you will find an API co
 -----------------------------------------------------------------------------------------------------------------------------------
 
 
+# Global switches
+
+```c
+int printMessages;
+```
+
+This switch enables the verbosity of message-related functions. This includes all the error checking functions. Its default value is `1`, which means that messages are enabled. You may want to disable messages in GUI applications. To do so, set it to `0`, which is also recommended when you want to make quick checks without bottering the user, or to print error custom messages:  
+
+```c
+int pkmn;
+/* ... (do something with that variable) */
+
+printMessages = 0; /* disable messages */
+if (checkPokemon(pkmn, WonderMailType) != NoError) {
+    /* handle the error */
+}
+printMessages = 1; /* enable messages again if you want */
+```
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+```c
+#define NO_USE_COLORS
+```
+
+If this directive is defined, the library will be built without color support. It is recommended that you define it only in console applications if you are streming to `stdout` or `stderr`. Also remember that *Windows* versions prior to *Windows 10 RS2* has no color support in consoles.  
+
+Since this must be defined in this library prior to compilation, it's recommended that you compile this by passing that definition to the compiler (for example passing `-DNO_USE_COLORS` to `gcc`) which is done automatically by compiling this library without color support (check the `README.md` file to learn how to do it).
+
+Note that for some reason the default *Windows*'s shell in which programs are executed, prints buggy characters instead of colors even on *Windows 10* with color support. A possible workaround is calling C `system()` function (which is defined in `stdlib.h`, or `cstdlib` if C++) with some command (can be an empty string) at the begining of the program:
+
+```c
+int main(int argc, const char* argv[])
+{
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+    system("title My program v1.0");
+#endif
+
+    /* ... */
+}
+```
+
+-----------------------------------------------------------------------------------------------------------------------------------  
+
+
 # Data types
 
 ## Structures
@@ -158,7 +203,7 @@ Name                | Value  | Description
 `ItemItem`          | `3`    | Two items.
 `UnknownRewardType` | `4`    | An invalid reward type.
 `MoneyMoney`        | `5`    | Money (`x2` the money given at `Money` and `MoneyItem`).
-`MoneyMoneyItem`    | `6`    | Money (`x2` the money given at `Money` and `MoneyItem`).
+`MoneyMoneyItem`    | `6`    | Money (`x2` the money given at `Money` and `MoneyItem`) plus two items.
 `Item2`             | `7`    | An item.
 `ItemItem2`         | `8`    | Two items.
 `FriendArea`        | `9`    | A friend zone.
@@ -206,6 +251,42 @@ Name                                    | Value   | Description
 
 
 # Function documentation  
+
+
+## Utility functions  
+
+```c
+int printMessage(FILE *stream, enum MessageType messageType, const char* message, ...)
+```
+
+Print to `stream` the formatted `message` of type `messageType`. This functions behaves like C `fprintf()` function. `message` can be one of the following:
+
+`enum MessageType`
+
+Name             | Value  | Description
+---------------- | ------ | -----------
+`DebugMessage`   | `0`    | Debug message. Shouldn't be used on production.
+`InfoMessage`    | `1`    | Information message. Use this to notify the user about something (like default actions).
+`WarningMessage` | `2`    | Warning message. Use this to warn the user about a possible failure.
+`ErrorMessage`   | `3`    | Error message. Use this when you must cancel or discard the current action.
+`FatalMessage`   | `4`    | Fatal error message. Use this for errors that will prevent the application for running.
+
+Depending of the type of message, a word is prepended to the message (`"DEBUG: "` for `DebugMessage`, `"ERROR: "` for `ErrorMessage`, and so).
+
+If `NO_USE_COLORS` is not defined, it prints the string that indicates the type of message with colors (light green for `InfoMessage`, yellow for `WarningMessage`, red for `ErrorMessage` and so).
+
+Example of usage:
+
+```c
+char pokemonName[51];
+int pokemonNameIsValid = 0;
+printMessage(stdout, InfoMessage, "Enter the pokemon species's name:\n");
+/* ... (do something with those variables) */
+
+if (!pokemonNameIsValid) {
+    printMessage(stderr, ErrorMessage, "There is not pokemon named %s.\n", pokemonName);
+}
+```
 
 
 ## Decoding/Encoding common functions  
@@ -410,7 +491,7 @@ This function takes the **SOS Mail** password `SOSPassword` and converts it into
 
 ## Pokémon  
 
-Bellow is the complete database of pokémon. Observe that these **are not** the dex numbers, but the numbers used by the game to identify each criature. The number `0` corresponds to *Decamark* (i.e., *Nothing*, an empty spot) and cannot be used. Also, some mail types add limitations to the species that can be used (for example, legendaries).  
+Bellow is the complete database of pokémon. Observe that these **are not** the dex numbers, but the numbers used by the game to identify each criature. The number `0` corresponds to *Decamark* (i.e., *??????????*, *Nothing*, an empty spot) and cannot be used. Also, some mail types add limitations to the species that can be used (for example, legendaries).  
 
 These values are defined as:
 
@@ -426,32 +507,32 @@ const unsigned int pkmnSpeciesCount;
 
 No. | Pokémon         | No. | Pokémon         | No. | Pokémon         | No. | Pokémon         | No. | Pokémon
 --- | --------------- | --- | --------------- | --- | --------------- | --- | --------------- | --- | -------
-  1 | Bulbasaur       | 101 | Electrode       | 201 | Unown           | 301 | Taillow         | 401 | Salamence
-  2 | Ivysaur         | 102 | Exeggcute       | 202 | Unown           | 302 | Swellow         | 402 | Beldum
-  3 | Venusaur        | 103 | Exeggutor       | 203 | Unown           | 303 | Wingull         | 403 | Metang
-  4 | Charmander      | 104 | Cubone          | 204 | Unown           | 304 | Pelipper        | 404 | Metagross
-  5 | Charmeleon      | 105 | Marowak         | 205 | Unown           | 305 | Ralts           | 405 | Regirock
-  6 | Charizard       | 106 | Hitmonlee       | 206 | Unown           | 306 | Kirlia          | 406 | Regice
-  7 | Squirtle        | 107 | Hitmonchan      | 207 | Unown           | 307 | Gardevoir       | 407 | Registeel
-  8 | Wartortle       | 108 | Lickitung       | 208 | Unown           | 308 | Surskit         | 408 | Latias
-  9 | Blastoise       | 109 | Koffing         | 209 | Unown           | 309 | Masquerain      | 409 | Latios
- 10 | Caterpie        | 110 | Weezing         | 210 | Unown           | 310 | Shroomish       | 410 | Kyogre
- 11 | Metapod         | 111 | Rhyhorn         | 211 | Unown           | 311 | Breloom         | 411 | Groudon
- 12 | Butterfree      | 112 | Rhydon          | 212 | Unown           | 312 | Slakoth         | 412 | Rayquaza
- 13 | Weedle          | 113 | Chansey         | 213 | Unown           | 313 | Vigoroth        | 413 | Jirachi
- 14 | Kakuna          | 114 | Tangela         | 214 | Unown           | 314 | Slaking         | 414 | Deoxys
- 15 | Beedrill        | 115 | Kangaskhan      | 215 | Unown           | 315 | Nincada
- 16 | Pidgey          | 116 | Horsea          | 216 | Unown           | 316 | Ninjask
- 17 | Pidgeotto       | 117 | Seadra          | 217 | Unown           | 317 | Shedinja
- 18 | Pidgeot         | 118 | Goldeen         | 218 | Unown           | 318 | Whismur
- 19 | Rattata         | 119 | Seaking         | 219 | Unown           | 319 | Loudred
- 20 | Raticate        | 120 | Staryu          | 220 | Unown           | 320 | Exploud
- 21 | Spearow         | 121 | Starmie         | 221 | Unown           | 321 | Makuhita
- 22 | Fearow          | 122 | Mr. Mime        | 222 | Unown           | 322 | Hariyama
- 23 | Ekans           | 123 | Scyther         | 223 | Unown           | 323 | Azurill
- 24 | Arbok           | 124 | Jynx            | 224 | Unown           | 324 | Nosepass
- 25 | Pikachu         | 125 | Electabuzz      | 225 | Unown           | 325 | Skitty
- 26 | Raichu          | 126 | Magmar          | 226 | Unown           | 326 | Delcatty
+  1 | Bulbasaur       | 101 | Electrode       | 201 | UnownA          | 301 | Taillow         | 401 | Salamence
+  2 | Ivysaur         | 102 | Exeggcute       | 202 | UnownB          | 302 | Swellow         | 402 | Beldum
+  3 | Venusaur        | 103 | Exeggutor       | 203 | UnownC          | 303 | Wingull         | 403 | Metang
+  4 | Charmander      | 104 | Cubone          | 204 | UnownD          | 304 | Pelipper        | 404 | Metagross
+  5 | Charmeleon      | 105 | Marowak         | 205 | UnownE          | 305 | Ralts           | 405 | Regirock
+  6 | Charizard       | 106 | Hitmonlee       | 206 | UnownF          | 306 | Kirlia          | 406 | Regice
+  7 | Squirtle        | 107 | Hitmonchan      | 207 | UnownG          | 307 | Gardevoir       | 407 | Registeel
+  8 | Wartortle       | 108 | Lickitung       | 208 | UnownH          | 308 | Surskit         | 408 | Latias
+  9 | Blastoise       | 109 | Koffing         | 209 | UnownI          | 309 | Masquerain      | 409 | Latios
+ 10 | Caterpie        | 110 | Weezing         | 210 | UnownJ          | 310 | Shroomish       | 410 | Kyogre
+ 11 | Metapod         | 111 | Rhyhorn         | 211 | UnownK          | 311 | Breloom         | 411 | Groudon
+ 12 | Butterfree      | 112 | Rhydon          | 212 | UnownL          | 312 | Slakoth         | 412 | Rayquaza
+ 13 | Weedle          | 113 | Chansey         | 213 | UnownM          | 313 | Vigoroth        | 413 | Jirachi
+ 14 | Kakuna          | 114 | Tangela         | 214 | UnownN          | 314 | Slaking         | 414 | Deoxys
+ 15 | Beedrill        | 115 | Kangaskhan      | 215 | UnownO          | 315 | Nincada         | 415 | Unown!
+ 16 | Pidgey          | 116 | Horsea          | 216 | UnownP          | 316 | Ninjask         | 416 | Unown?
+ 17 | Pidgeotto       | 117 | Seadra          | 217 | UnownQ          | 317 | Shedinja        | 417 | Deoxys Atk
+ 18 | Pidgeot         | 118 | Goldeen         | 218 | UnownR          | 318 | Whismur         | 418 | Deoxys Def
+ 19 | Rattata         | 119 | Seaking         | 219 | UnownS          | 319 | Loudred         | 419 | Deoxys Spd
+ 20 | Raticate        | 120 | Staryu          | 220 | UnownT          | 320 | Exploud         | 420 | Munchlax
+ 21 | Spearow         | 121 | Starmie         | 221 | UnownU          | 321 | Makuhita        | 421 | Decoy
+ 22 | Fearow          | 122 | Mr. Mime        | 222 | UnownV          | 322 | Hariyama        | 422 | Statue
+ 23 | Ekans           | 123 | Scyther         | 223 | UnownW          | 323 | Azurill         | 423 | Rayquaza
+ 24 | Arbok           | 124 | Jynx            | 224 | UnownX          | 324 | Nosepass
+ 25 | Pikachu         | 125 | Electabuzz      | 225 | UnownY          | 325 | Skitty
+ 26 | Raichu          | 126 | Magmar          | 226 | UnownZ          | 326 | Delcatty
  27 | Sandshrew       | 127 | Pinsir          | 227 | Wobbuffet       | 327 | Sableye
  28 | Sandslash       | 128 | Tauros          | 228 | Girafarig       | 328 | Mawile
  29 | NidoranF        | 129 | Magikarp        | 229 | Pineco          | 329 | Aron
