@@ -168,19 +168,19 @@ int showSelectionScreen()
 {
     unsigned int selection;
     fputs(LIGHT "What do you want to do?\n" \
-          DGRAY   "----------------------- Main Services ------------------------\n" \
+          DGRAY   "-------------------------- Main Services ---------------------------\n" \
           LGREEN  "1" RESET "  - Decode a Wonder Mail\n" \
           LGREEN  "2" RESET "  - Encode a Wonder Mail\n" \
           LGREEN  "3" RESET "  - Decode a SOS Mail\n" \
           LGREEN  "4" RESET "  - Encode a SOS Mail\n" \
           LGREEN  "5" RESET "  - Convert a SOS Mail -> A-OK Mail -> Thank-You Mail\n" \
-          DGRAY   "--------------------- Massive Generation ---------------------\n" \
+          DGRAY   "------------------------ Massive Generation ------------------------\n" \
           LGREEN  "6" RESET "  - Generate 8 easy \"Help Me!\" missions\n" \
           LGREEN  "7" RESET "  - Generate a maximum of 8 high-rank \"Help Me!\" missions\n", stdout);
-    fputs(DGRAY   "--------------------------- Unlock ---------------------------\n" \
+    fputs(DGRAY   "------------------------------ Unlock ------------------------------\n" \
           LGREEN  "8" RESET "  - Unlock pokemon\n" \
           LGREEN  "9" RESET "  - Unlock dungeons\n" \
-          DGRAY   "---------------------------- Help ----------------------------\n" \
+          DGRAY   "------------------------------- Help -------------------------------\n" \
           LGREEN  "10" RESET " - Show Database\n" \
           LGREEN  "11" RESET " - Show Help\n" \
           LGREEN  "[Other]:" LRED " Exit\n" RESET, stdout);

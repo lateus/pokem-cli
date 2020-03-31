@@ -55,7 +55,7 @@ int main(int argc, const char *argv[])
 
     /* Copyright notice */
     fputs(LIGHT PROGRAM_STRING RESET DRED " v" VERSION_STRING DGREEN "   Copyright 2018-2020 Carlos Enrique Perez Sanchez.\n"
-          "..............................................................\n\n" RESET, stdout);
+          "....................................................................\n\n" RESET, stdout);
     fflush(stdout);
 
     /* Basics command line options */
