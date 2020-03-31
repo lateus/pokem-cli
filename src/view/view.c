@@ -1121,8 +1121,8 @@ void printSOSData(const struct SosMailInfo *mailInfo, const struct SosMail *mail
     fprintf(stdout, COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Difficulty:   " RESET COLOR_BACKGROUND "%s%c%-32s" COLOR_BORDER "*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Reward:       " RESET COLOR_BACKGROUND "%-71s" COLOR_BORDER "*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "ID:           " RESET COLOR_BACKGROUND "%-33s" COLOR_BORDER "*" RESET EndOfLineString
-                    COLOR_BORDER COLOR_BACKGROUND "%s" WHITE COLOR_BACKGROUND "%s"             RESET COLOR_BACKGROUND "%-33s" COLOR_BORDER "%s" RESET "%s", diffColor, mailInfo->difficulty, "", newReward, mailInfo->id, mail->mailType == SosMailType ? "* " : "\r", mail->mailType == SosMailType ? "Chances left: " : "\r", mail->mailType == SosMailType ? mailInfo->chancesLeft : "\r", mail->mailType == SosMailType ? "*" : "\r", mail->mailType == SosMailType ? "\n" : "\r");
-    fprintf(stdout, COLOR_BORDER COLOR_BACKGROUND "* " WHITE COLOR_BACKGROUND "Password:     " RESET COLOR_BACKGROUND "%s" COLOR_YELLOW "%s" RESET COLOR_BACKGROUND "%-20s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
+                    COLOR_BORDER COLOR_BACKGROUND "%s" WHITE COLOR_BACKGROUND "%s"             RESET COLOR_BACKGROUND "%-33s" COLOR_BORDER "%s" RESET "%s", diffColor, mailInfo->difficulty, "", newReward, mailInfo->id, mail->mailType == SosMailType ? "* " : "\r", mail->mailType == SosMailType ? "Chances left: " : "\r", mail->mailType == SosMailType ? mailInfo->chancesLeft : "\r", mail->mailType == SosMailType ? "*" : "\r", mail->mailType == SosMailType ? EndOfLineString COLOR_BORDER COLOR_BACKGROUND "* " : "\r");
+    fprintf(stdout,                                    WHITE COLOR_BACKGROUND "Password:     " RESET COLOR_BACKGROUND "%s " COLOR_YELLOW "%s" RESET COLOR_BACKGROUND " %-18s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "              %s " COLOR_YELLOW "%s" RESET COLOR_BACKGROUND " %-18s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString
                     COLOR_BORDER COLOR_BACKGROUND "* " RESET COLOR_BACKGROUND "              %s " COLOR_YELLOW "%s" RESET COLOR_BACKGROUND " %-18s" COLOR_BORDER COLOR_BACKGROUND "*" RESET EndOfLineString, temp, temp + 6, temp + 15, temp + 21, temp + 27, temp + 36, temp + 42, temp + 48, temp + 57);
     fprintf(stdout, COLOR_BORDER COLOR_BACKGROUND "**************************************************" RESET EndOfLineString);
@@ -1173,11 +1173,13 @@ void printWonderMailDataToFile(const struct WonderMailInfo *mailInfo, FILE *f)
 
 void printSOSDataToFile(const struct SosMailInfo *mailInfo, enum MailType mailType, FILE *f)
 {
+    char newClient[24]  = {0};
     char placeAndFloor[51] = {0};
 
     int i, j;
     char temp[70];
 
+    sprintf(newClient, "%s (%s)", mailInfo->nickname, mailInfo->client);
     sprintf(placeAndFloor, "%s  %s", mailInfo->place, mailInfo->floor);
 
     for (i = j = 0; i < 54; ++i) {
@@ -1205,7 +1207,7 @@ void printSOSDataToFile(const struct SosMailInfo *mailInfo, enum MailType mailTy
                     "*               %s %s %-17s *\n"
                     "*               %s %s %-17s *\n"
                     "**************************************************\n",
-            mailInfo->head, "", mailInfo->body, "", mailInfo->client, mailInfo->objective, placeAndFloor, "", mailInfo->difficulty, "", mailInfo->reward, mailInfo->id, mailType == SosMailType ? "* " : "\r", mailType == SosMailType ? "Chances left: " : "\r", mailType == SosMailType ? mailInfo->chancesLeft : "\r", mailType == SosMailType ? "*" : "\r", mailType == SosMailType ? "\n" : "\r", temp, temp + 6, temp + 15, temp + 21, temp + 27, temp + 36, temp + 42, temp + 48, temp + 57);
+            mailInfo->head, "", mailInfo->body, "", newClient, mailInfo->objective, placeAndFloor, "", mailInfo->difficulty, "", mailInfo->reward, mailInfo->id, mailType == SosMailType ? "* " : "\r", mailType == SosMailType ? "Chances left: " : "\r", mailType == SosMailType ? mailInfo->chancesLeft : "\r", mailType == SosMailType ? "*" : "\r", mailType == SosMailType ? "\n" : "\r", temp, temp + 6, temp + 15, temp + 21, temp + 27, temp + 36, temp + 42, temp + 48, temp + 57);
 }
 
 
@@ -1256,6 +1258,7 @@ int requestAndValidateStringInput(char* str, unsigned int maxLength, int allowEm
         stringInput[strlen(stringInput) - 1] = '\0';
     }
     strncpy(str, stringInput, maxLength);
+    str[maxLength] = '\0';
     if (strlen(stringInput) > maxLength) {
         printMessage(stderr, WarningMessage, "The input (" LRED "%s" RESET ") is bigger than %d characters, so it has been truncated to " LGREEN "%s" RESET ".\n" LGREEN, stringInput, maxLength, str);
     }
