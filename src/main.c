@@ -10,7 +10,7 @@
 #include <errno.h>
 
 #define PROGRAM_STRING "PokeM"
-#define VERSION_STRING "0.2-alpha"
+#define VERSION_STRING "0.3-alpha"
 
 extern int printMessages;
 extern struct ErrorReport errorReport;
