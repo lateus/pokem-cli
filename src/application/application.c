@@ -781,8 +781,8 @@ int generateMassiveHighRankMissions(int dungeon, int item, int amount)
 
 int unlockExclusivePokemon(enum GameType gameType)
 {
-    int pokemonRedRescueTeam[]  = { 137, 251, 336, 340, 374 }; /* Porygon, Mantine, Plusle, Roselia and Feebas */
-    int pokemonBlueRescueTeam[] = { 129, 131, 190, 337 }; /* Magikarp, Lapras, Aipom and Minum */
+    int pokemonRedRescueTeam[]  = { 129, 131, 190, 258, 337 }; /* Magikarp, Lapras, Aipom, Porygon2 and Minum */
+    int pokemonBlueRescueTeam[] = { 137, 251, 336, 340, 374, 375 }; /* Porygon, Mantine, Plusle, Roselia, Feebas and Milotic */
 
     struct WonderMail wm = { WonderMailType, HelpMe, 0, 0, 0, 0x09, MoneyMoney, 0x09, 0, 0, 0, 0xFF, 0, 1 };
     struct WonderMailInfo wmInfo = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, '\0', {0}, {0} };
