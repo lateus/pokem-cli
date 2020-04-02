@@ -229,7 +229,7 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
         if (selection < 5) { /* `selection` is unsigned so it's always >= 0 */
             break; /* input is ok */
         }
-        printMessage(stderr, ErrorMessage, "Choice " LRED "%d" RESET " is out of range.\n", selection);
+        printMessage(stderr, ErrorMessage, "Choice " LRED "%d" RESET " is out of range.\n", selection + 1);
     }
     wm->missionType = selection;
 
@@ -460,7 +460,7 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
         if (selection < 5) { /* `selection` is unsigned so it's always >= 0 */
             break; /* input is ok */
         }
-        printMessage(stderr, ErrorMessage, "Choice " LRED "%d" RESET " is out of range.\n", selection);
+        printMessage(stderr, ErrorMessage, "Choice " LRED "%d" RESET " is out of range.\n", selection + 1);
     } /* forever */
     wm->rewardType = rewardTypes[selection];
 
@@ -527,7 +527,7 @@ int requestAndParseWonderMailData(struct WonderMail *wm)
             if (selection < 4) { /* `selection` is unsigned so it's always >= 0 */
                 break; /* input is ok */
             }
-            printMessage(stderr, ErrorMessage, "Choice " LRED "%d" RESET " is out of range.\n", selection);
+            printMessage(stderr, ErrorMessage, "Choice " LRED "%d" RESET " is out of range.\n", selection + 1);
         }
         wm->friendAreaReward = availableFriendAreasIndexes[selection];
     } else {
@@ -575,9 +575,10 @@ int requestAndParseSosMailData(struct SosMail *sos)
             --selection;
             if (selection < 3) { /* as `selection` is unsigned, it is always >= 0 */
                 break; /* input is ok */
+            } else {
+                printMessage(stderr, ErrorMessage, "Choice " LRED "%d" RESET " is out of range.\n", selection + 1);
             }
         }
-        printMessage(stderr, ErrorMessage, "Choice " LRED "%d" RESET " is out of range.\n", selection);
     }
     sos->mailType = mailTypes[selection];
 
