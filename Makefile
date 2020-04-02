@@ -94,7 +94,7 @@ $(EXECUTABLE): $(LIBS) $(BUILDDIR) $(OBJS) $(RC_OBJ) $(BINDIR)
 
 $(LIBS): $(LIBSDIR)
 	@$(MSG) "$(YELLOW)Building $(LIGHTGREEN)$@$(YELLOW) library...$(NOCOLOR)\n"
-	@$(MAKE) --directory src/3rdparty/$@
+	@$(MAKE) --directory src/3rdparty/$@ $(if $(filter all-without-colors, $(MAKECMDGOALS)), all-without-colors,)
 	@$(CP) $(CP_FLAGS) src/3rdparty/$@/binlib/lib$@.a lib/lib$@.a
 	@$(CP) $(CP_FLAGS) src/3rdparty/$@/binlib/$@.h lib/$@.h
 
