@@ -218,6 +218,7 @@ int main(int argc, const char *argv[])
 /* SIGINT - Interactive */
 void sigint_handler(int signalCode)
 {
+    fputc('\n', stderr);
     printMessage(stderr, InfoMessage, "User interrupt. Aborted.\n");
     exit(signalCode);
 }
@@ -225,6 +226,7 @@ void sigint_handler(int signalCode)
 /* SIGABRT - Abnormal termination */
 void sigabrt_handler(int signalCode)
 {
+    fputc('\n', stderr);
     printMessage(stderr, InfoMessage, "Aborted.\n");
     exit(signalCode);
 }
