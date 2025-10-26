@@ -16,7 +16,7 @@ Windows users can simply open the executable directly.
 ### Requirements:
 - Make tool
 - C Compiler
-- **PókeM**, which can be found [here](github.com/lateo96/pokem) and must be (both library and header) in the `lib` directory. For your convenience, a local (maybe not the latest) copy of **PokéM** can be found in `src/3rdparty` directory, and will be used to build the application.
+- **PókeM**, which can be found [here](https://github.com/lateus/pokem) and must be (both library and header) in the `lib` directory. For your convenience, a local (maybe not the latest) copy of **PokéM** can be found in `src/3rdparty` directory, and will be used to build the application.
 
 ### Build:
 Go to the root of the project and type in the terminal:  
@@ -34,4 +34,4 @@ $ make all-without-colors
 
 -----------------------------------------------------------------------------------------------------------------------------------
 
-***Contact info:*** [*thecrowporation@gmail.com*](mailto:thecrowporation@gmail.com)
+***Contact info:*** [*lateus.betelgeuse@gmail.com*](mailto:lateus.betelgeuse@gmail.com)
